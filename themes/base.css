@@ -157,3 +157,22 @@ ul {
 ul li {
     margin-bottom: 4px;
 }
+
+/* --- 结构层布局按钮样式 --- */
+.structure-only-block .layout-toggle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.structure-only-block:hover .layout-toggle {
+    opacity: 1;
+}
+
+.structure-only-block .layout-toggle:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}

@@ -19,19 +19,26 @@
         <div class="theme-selector">
             <label for="theme-select">主题:</label>
             <select id="theme-select">
-                <option value="default">默认</option>
-                <option value="dark">深色</option>
+                <!-- 主题选项将通过JavaScript动态生成 -->
             </select>
         </div>
     </header>
     <main class="main-container">
         <div class="panel panel-controls">
-            <h2>1. 输入结构</h2>
+            <h2>输入结构</h2>
             <textarea id="input-textarea" placeholder="使用 # 定义层级, - 定义项目..."></textarea>
             
-            <h2>2. 操作</h2>
+            <h2>操作</h2>
             <button class="button" id="generate-btn">生成 / 更新图表</button>
             <button class="button" id="export-btn">导出HTML文件</button>
+
+            <h2>设置</h2>
+            <div style="margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                    <input type="checkbox" id="show-structure-toggles" checked>
+                    显示结构层布局按钮
+                </label>
+            </div>
 
             <h2>说明</h2>
             <ul style="font-size: 14px; padding-left: 20px;">
@@ -48,11 +55,11 @@
             </ul>
         </div>
         <div class="panel panel-preview">
-            <h2>3. 交互式预览</h2>
+            <h2>交互式预览</h2>
             <div id="diagram-output"></div>
         </div>
         <div class="panel panel-code">
-            <h2>4. 生成的代码</h2>
+            <h2>生成的代码</h2>
             <pre id="code-preview"><code>点击“生成”按钮以显示代码...</code></pre>
         </div>
     </main>
@@ -187,6 +194,7 @@ line 3
                 block.className = 'block';
                 if (node.isStructureOnly) {
                     block.classList.add('structure-only-block');
+                    block.setAttribute('data-structure-only', 'true');
                 }
                 block.setAttribute('data-level', node.level);
 
@@ -221,13 +229,17 @@ line 3
                 }
 
                 if (node.children.length > 0) {
-                    if (!node.isStructureOnly) {
-                        const layoutToggle = document.createElement('div');
-                        layoutToggle.className = 'layout-toggle';
-                        layoutToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`;
-                        layoutToggle.title = "切换布局";
-                        block.appendChild(layoutToggle);
+                    const layoutToggle = document.createElement('div');
+                    layoutToggle.className = 'layout-toggle';
+                    layoutToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`;
+                    layoutToggle.title = "切换布局";
+                    
+                    // 如果是结构层且复选框未选中，则隐藏布局按钮
+                    if (node.isStructureOnly && !showStructureTogglesCheckbox.checked) {
+                        layoutToggle.style.display = 'none';
                     }
+                    
+                    block.appendChild(layoutToggle);
                     renderDiagram(node.children, block);
                 }
                 container.appendChild(block);
@@ -271,14 +283,14 @@ line 3
             renderNodeGroup(mainNodes, targetParentElement);
         }
 
-        function generateAndRender() {
+        async function generateAndRender() {
             const text = inputTextArea.value;
             const tree = parseText(text);
             diagramOutput.innerHTML = '';
             renderDiagram(tree, diagramOutput);
             setupSortable();
             setupLayoutToggles();
-            updateCodePreview();
+            await updateCodePreview();
         }
 
         function setupSortable() {
@@ -286,14 +298,14 @@ line 3
                 new Sortable(container, {
                     group: 'nested', animation: 150, ghostClass: 'sortable-ghost',
                     dragClass: 'sortable-drag', fallbackOnBody: true, swapThreshold: 0.65,
-                    onEnd: () => updateCodePreview(),
+                    onEnd: async () => await updateCodePreview(),
                 });
             });
         }
         
         function setupLayoutToggles() {
             document.querySelectorAll('.layout-toggle').forEach(toggle => {
-                toggle.addEventListener('click', (e) => {
+                toggle.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     const container = toggle.closest('.block').querySelector('.block-container');
                     if (!container) return;
@@ -306,40 +318,22 @@ line 3
                         ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`
                         : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>`;
 
-                    updateCodePreview();
+                    await updateCodePreview();
                 });
             });
         }
 
-        function getDiagramCSS() {
-            // 根据当前主题返回相应的CSS
-            if (currentTheme === 'dark') {
-                return `
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #1a1a1a; color: #e0e0e0; }
-        .block { border: 1px solid; border-radius: 8px; background-color: #2d2d2d; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); margin: 8px; }
-        .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-        .block-title { font-weight: 600; margin: 0 0 8px 0; color: #ffffff; }
-        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
-        .block-items-container p { margin: 0; }
-        .markdown-content > *:first-child { margin-top: 0; } .markdown-content > *:last-child { margin-bottom: 0; }
-        .text-content { white-space: pre; font-family: monospace; background-color: #1e1e1e; color: #e0e0e0; padding: 8px; border-radius: 4px; margin: 0;}
-        .block-container { min-height: 20px; }
-        .layout-vertical { display: flex; flex-direction: column; }
-        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
-        .layout-horizontal > .block { flex: 1; }
-        .block-content-wrapper { display: flex; align-items: stretch; gap: 16px; }
-        .block-main-content { flex: 1; min-width: 0; }
-        .block-sidebar { flex: 0 0 240px; }
-        [data-level='1'] { border-color: #666666; } [data-level='1'] > .block-title { font-size: 1.4em; color: #ffffff; }
-        [data-level='2'] { border-color: #555555; } [data-level='2'] > .block-title { font-size: 1.2em; color: #e0e0e0; }
-        [data-level='3'] { border-color: #444444; } [data-level='3'] > .block-title { font-size: 1.1em; color: #cccccc; }
-        [data-level='4'] { border-color: #333333; }
-                `.trim().replace(/\n\s+/g, '\n');
-            } else {
-                // 默认主题
+        async function getDiagramCSS() {
+            // 从CSS文件中读取当前主题的样式
+            try {
+                const cssContent = await loadThemeCSS(currentTheme);
+                return cssContent;
+            } catch (error) {
+                console.error('获取主题CSS失败:', error);
+                // 如果加载失败，返回基本样式
                 return `
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #f4f7f9; }
-        .block { border: 1px solid; border-radius: 8px; background-color: #fff; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin: 8px; }
+        .block { border: 1px solid #ddd; border-radius: 8px; background-color: #fff; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin: 8px; }
         .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
         .block-title { font-weight: 600; margin: 0 0 8px 0; }
         .block-items-container { display: flex; flex-direction: column; gap: 8px; }
@@ -353,18 +347,17 @@ line 3
         .block-content-wrapper { display: flex; align-items: stretch; gap: 16px; }
         .block-main-content { flex: 1; min-width: 0; }
         .block-sidebar { flex: 0 0 240px; }
-        [data-level='1'] { border-color: #7f8c8d; } [data-level='1'] > .block-title { font-size: 1.4em; }
-        [data-level='2'] { border-color: #95a5a6; } [data-level='2'] > .block-title { font-size: 1.2em; }
-        [data-level='3'] { border-color: #bdc3c7; } [data-level='3'] > .block-title { font-size: 1.1em; }
-        [data-level='4'] { border-color: #ecf0f1; }
-                `.trim().replace(/\n\s+/g, '\n');
+                `.trim();
             }
         }
 
-        function updateCodePreview() {
+        async function updateCodePreview() {
             const clone = diagramOutput.cloneNode(true);
             clone.querySelectorAll('.layout-toggle').forEach(el => el.remove());
             const htmlContent = clone.innerHTML;
+            
+            // 异步获取CSS内容
+            const cssContent = await getDiagramCSS();
             
             const fullHtml = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -372,7 +365,7 @@ line 3
     <meta charset="UTF-8">
     <title>架构图</title>
     <style>
-        ${getDiagramCSS()}
+        ${cssContent}
     </style>
 </head>
 <body>
@@ -382,7 +375,10 @@ line 3
             codePreview.textContent = fullHtml;
         }
         
-        function exportHTML() {
+        async function exportHTML() {
+            // 确保代码预览是最新的
+            await updateCodePreview();
+            
             const blob = new Blob([codePreview.textContent], { type: 'text/html' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -395,10 +391,135 @@ line 3
         generateBtn.addEventListener('click', generateAndRender);
         exportBtn.addEventListener('click', exportHTML);
 
+        // 结构层布局按钮显示控制
+        const showStructureTogglesCheckbox = document.getElementById('show-structure-toggles');
+        
+        function toggleStructureLayoutButtons(show) {
+            const structureBlocks = document.querySelectorAll('.block[data-structure-only="true"]');
+            structureBlocks.forEach(block => {
+                const layoutToggle = block.querySelector('.layout-toggle');
+                if (layoutToggle) {
+                    layoutToggle.style.display = show ? 'block' : 'none';
+                }
+            });
+        }
+        
+        showStructureTogglesCheckbox.addEventListener('change', (e) => {
+            toggleStructureLayoutButtons(e.target.checked);
+        });
+
         // 主题切换功能
         let currentTheme = 'default';
         const themeSelect = document.getElementById('theme-select');
         const themeCss = document.getElementById('theme-css');
+        let availableThemes = [];
+        let themeCache = {}; // 缓存已加载的CSS内容
+
+        // 异步加载CSS文件内容
+        async function loadThemeCSS(themeName) {
+            // 如果已经缓存，直接返回
+            if (themeCache[themeName]) {
+                return themeCache[themeName];
+            }
+            
+            try {
+                const response = await fetch(`themes/${themeName}.css`);
+                if (!response.ok) {
+                    throw new Error(`无法加载主题文件: ${themeName}.css`);
+                }
+                const cssContent = await response.text();
+                
+                // 缓存CSS内容
+                themeCache[themeName] = cssContent;
+                return cssContent;
+            } catch (error) {
+                console.error(`加载主题 ${themeName} 失败:`, error);
+                // 如果加载失败，返回空字符串或默认样式
+                return '';
+            }
+        }
+
+        // 动态扫描themes文件夹中的主题文件
+        async function scanThemes() {
+            try {
+                // 尝试获取themes文件夹的文件列表
+                const response = await fetch('themes/');
+                const text = await response.text();
+                
+                // 解析HTML响应，提取.css文件（排除base.css）
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const links = doc.querySelectorAll('a[href$=".css"]');
+                
+                availableThemes = [];
+                links.forEach(link => {
+                    const filename = link.getAttribute('href');
+                    if (filename && filename !== 'base.css') {
+                        const themeName = filename.replace('.css', '');
+                        availableThemes.push({
+                            name: themeName,
+                            displayName: getThemeDisplayName(themeName)
+                        });
+                    }
+                });
+                
+                // 如果无法通过目录列表获取，使用默认主题列表
+                if (availableThemes.length === 0) {
+                    availableThemes = [
+                        { name: 'default', displayName: '默认' },
+                        { name: 'dark', displayName: '深色' },
+                        { name: 'candy', displayName: '糖果' }
+                    ];
+                }
+                
+                updateThemeSelector();
+            } catch (error) {
+                console.log('无法动态扫描主题，使用默认主题列表');
+                // 使用默认主题列表
+                availableThemes = [
+                    { name: 'default', displayName: '默认' },
+                    { name: 'dark', displayName: '深色' },
+                    { name: 'candy', displayName: '糖果' }
+                ];
+                updateThemeSelector();
+            }
+        }
+
+        // 获取主题显示名称
+        function getThemeDisplayName(themeName) {
+            const displayNames = {
+                'default': '默认',
+                'dark': '深色',
+                'candy': '糖果'
+            };
+            return displayNames[themeName] || themeName.charAt(0).toUpperCase() + themeName.slice(1);
+        }
+
+        // 更新主题选择器
+        function updateThemeSelector() {
+            // 清空现有选项
+            themeSelect.innerHTML = '';
+            
+            // 添加新选项
+            availableThemes.forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme.name;
+                option.textContent = theme.displayName;
+                themeSelect.appendChild(option);
+            });
+            
+            // 恢复保存的主题选择
+            const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+            if (availableThemes.some(theme => theme.name === savedTheme)) {
+                themeSelect.value = savedTheme;
+                switchTheme(savedTheme);
+            } else {
+                // 如果保存的主题不存在，使用第一个可用主题
+                const firstTheme = availableThemes[0]?.name || 'default';
+                themeSelect.value = firstTheme;
+                switchTheme(firstTheme);
+            }
+        }
 
         function switchTheme(theme) {
             currentTheme = theme;
@@ -410,13 +531,15 @@ line 3
             switchTheme(e.target.value);
         });
 
-        // 加载保存的主题
-        const savedTheme = localStorage.getItem('selectedTheme') || 'default';
-        themeSelect.value = savedTheme;
-        switchTheme(savedTheme);
+        // 初始化主题系统
+        async function initializeThemes() {
+            await scanThemes();
+        }
 
         // 初始加载
-        generateAndRender();
+        initializeThemes().then(() => {
+            generateAndRender();
+        });
     </script>
 </body>
 </html>

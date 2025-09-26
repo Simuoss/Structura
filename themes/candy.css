@@ -1,0 +1,263 @@
+/* Candy Theme - 明快彩色主题 */
+
+/* 预览区域背景 */
+.panel-preview {
+    background: linear-gradient(135deg, #ffeef8 0%, #f0f8ff 50%, #f8fff0 100%);
+}
+
+/* 图表输出区域 */
+#diagram-output {
+    padding: var(--spacing);
+    background: linear-gradient(135deg, #fff5f5 0%, #f0f8ff 50%, #f5fff5 100%);
+    border-radius: var(--radius);
+}
+
+/* 基础块样式 */
+.block {
+    border: 2px solid;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+    padding: 16px;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    cursor: grab;
+    margin: 10px;
+}
+
+.block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* 块标题 */
+.block-title {
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    font-size: 1.1em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 块内容容器 */
+.block-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.block-items-container p {
+    margin: 0;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.block-container {
+    min-height: 20px;
+    border-radius: var(--radius);
+}
+
+/* 布局模式 */
+.layout-vertical {
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.layout-horizontal > .block {
+    flex: 1;
+}
+
+/* SortableJS 辅助类 */
+.sortable-ghost {
+    opacity: 0.5;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    transform: scale(0.98);
+}
+
+.sortable-drag {
+    opacity: 0.9;
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    cursor: grabbing;
+}
+
+/* 侧边栏布局样式 */
+.block-content-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: var(--spacing);
+}
+
+.block-main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.block-sidebar {
+    flex: 0 0 240px;
+}
+
+/* 结构层样式 */
+.structure-only-block {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: default !important;
+}
+
+.structure-only-block > .block-container {
+    min-height: 0;
+}
+
+/* 内容块样式 */
+.markdown-content {
+    text-align: left;
+    background: rgba(255,255,255,0.8);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #ff6b6b;
+}
+
+.markdown-content > *:first-child {
+    margin-top: 0;
+}
+
+.markdown-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.text-content {
+    white-space: pre;
+    text-align: left;
+    background: linear-gradient(135deg, #fff9c4 0%, #f0f8ff 100%);
+    color: #2d3748;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin: 0;
+    border-left: 4px solid #ffd93d;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 层级样式 - 更淡的彩色渐变 */
+[data-level='1'] {
+    border-color: #ffb3b3;
+    background: linear-gradient(135deg, #fffafa 0%, #fff0f0 100%);
+}
+
+[data-level='1'] > .block-title {
+    font-size: 1.5em;
+    color: #cc6666;
+    background: linear-gradient(135deg, #ffb3b3, #ff9999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-level='1'] .block-items-container p {
+    border-left-color: #ffb3b3;
+}
+
+[data-level='2'] {
+    border-color: #80e6d9;
+    background: linear-gradient(135deg, #f8fffe 0%, #f0fffe 100%);
+}
+
+[data-level='2'] > .block-title {
+    font-size: 1.3em;
+    color: #4db3a6;
+    background: linear-gradient(135deg, #80e6d9, #66d9cc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-level='2'] .block-items-container p {
+    border-left-color: #80e6d9;
+}
+
+[data-level='3'] {
+    border-color: #c9b3ff;
+    background: linear-gradient(135deg, #fcfaff 0%, #f8f4ff 100%);
+}
+
+[data-level='3'] > .block-title {
+    font-size: 1.2em;
+    color: #9966cc;
+    background: linear-gradient(135deg, #c9b3ff, #b399ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-level='3'] .block-items-container p {
+    border-left-color: #c9b3ff;
+}
+
+[data-level='4'] {
+    border-color: #ffe066;
+    background: linear-gradient(135deg, #fffef5 0%, #fffbeb 100%);
+}
+
+[data-level='4'] > .block-title {
+    font-size: 1.1em;
+    color: #cc9900;
+    background: linear-gradient(135deg, #ffe066, #ffdb4d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-level='4'] .block-items-container p {
+    border-left-color: #ffe066;
+}
+
+/* 布局切换按钮 */
+.layout-toggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    line-height: 0;
+    z-index: 5;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.layout-toggle:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.9));
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 特殊效果 - 移除悬停时的彩色边框 */
+.block::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #a78bfa, #ffd93d);
+    border-radius: 14px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 移除悬停时的彩色效果 */
+/* .block:hover::before {
+    opacity: 0.3;
+} */
