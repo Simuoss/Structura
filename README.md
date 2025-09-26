@@ -12,7 +12,7 @@
 
 </div>
 
-<a name="-english"></a>
+`<a name="-english"></a>`
 
 ## 🇬🇧 English
 
@@ -32,32 +32,106 @@ Check out the interactive builder in action!
 
 ### ✨ Core Features
 
-* **🤖 AI-First Syntax**: A simple, line-based, hierarchical syntax using `#` and `-` that is trivial for Large Language Models to generate.
-* **↔️ Interactive Drag & Drop**: Freely reorder any component within its container to achieve the perfect layout.
-* **🎨 Dynamic Layouts**: Instantly switch any component group between **vertical** and **horizontal** layouts with a single click.
-* **📐 Advanced Structuring**:
-    * **Sidebars**: Attach vertical sidebars to the left or right of any component.
-    * **Invisible Containers**: Use title-less blocks (`##`) to group components for layout purposes without adding visual clutter.
-* **📚 Rich Content Support**:
-    * Embed and render **Markdown** for detailed descriptions.
-    * Use **multi-line text blocks** to preserve formatting for code snippets or logs.
-* **💻 Code Generation & Export**: The tool generates clean, corresponding HTML & CSS in real-time. Export your final diagram as a self-contained HTML file.
+* **🚀 Ultra-Simple Syntax**: Just `#` and `-` symbols - create complex frontend-backend architecture diagrams with only 20 lines of code.
+* **🎯 AI-Friendly**: Syntax designed specifically for Large Language Models to effortlessly generate professional architecture diagrams.
+* **⚡ Real-time Preview**: Type on the left, see results instantly on the right - what you see is what you get.
+* **🎨 Flexible Layouts**: One-click switching between horizontal/vertical layouts, drag-and-drop component positioning.
+* **📱 Rich Components**: 
+    * **Sidebars**: Left and right sidebar support
+    * **Invisible Containers**: Pure layout containers without visible titles
+    * **Multi-line Text**: Support for code blocks and long text
+    * **Markdown**: Embedded Markdown content rendering
+* **💾 One-Click Export**: Generate standalone HTML files for easy sharing.
 
 ### 📖 Syntax Guide
 
 Structura's syntax is designed to be simple and intuitive.
 
-| Syntax                     | Description                                          |
-| -------------------------- | ---------------------------------------------------- |
-| `# Title`                  | Creates a top-level block.                           |
-| `## Title`, `### Title`... | Creates a nested sub-block (up to 10 levels).        |
-| `##` (No title)            | Creates an invisible structural container.           |
-| `##\| Title`                 | Creates a right sidebar relative to its parent.      |
-| `\|## Title`                 | Creates a left sidebar relative to its parent.       |
-| `- List item`              | Creates a simple text item inside a block.           |
-| `- - List item`            | Renders the item with a leading `-`.                 |
-| `-{ ... }`                 | Creates a multi-line, pre-formatted text block.      |
-| `- \`\`\`md ... \`\`\``     | Creates a block where the content is rendered as Markdown. |
+#### Basic Structure
+
+| Syntax                         | Description                                   |
+| ------------------------------ | --------------------------------------------- |
+| `# Title`                    | Creates a top-level block.                    |
+| `## Title`, `### Title`... | Creates a nested sub-block (up to 10 levels). |
+| `##` (No title)              | Creates an invisible structural container.    |
+| `- List item`                | Creates a simple text item inside a block.    |
+
+
+#### Block Attributes
+
+| Syntax                             | Description                                         |
+| ---------------------------------- | --------------------------------------------------- |
+| `## Title {id=my-id}`            | Sets a custom ID for the block.                     |
+| `## Title:my-id`                 | Sets a custom ID for the block (colon syntax).      |
+| `## Title r:`                    | Applies horizontal layout (syntax sugar, no ID).    |
+| `## Title c:`                    | Applies vertical layout (syntax sugar, no ID).      |
+| `## Title r:my-id`               | Sets ID and applies horizontal layout (syntax sugar). |
+| `## Title c:my-id`               | Sets ID and applies vertical layout (syntax sugar).   |
+| `## Title {style="color: red;"}` | Applies custom CSS styles to the block.             |
+| `## Title {layout=r}`            | Arranges child blocks horizontally.                 |
+| `## Title {layout=c}`            | Arranges child blocks vertically.                   |
+| `## {layout=r}`                  | Creates invisible container with horizontal layout. |
+
+#### Sidebar Syntax
+
+| Syntax    | Description |
+| --------- | ----------- |
+| `##       | Title`      |
+| `## Title | `           |
+
+#### Content Blocks
+
+| Syntax                     | Description                                       |
+| -------------------------- | ------------------------------------------------- |
+| ``text<br>Plain text<br>`` | Creates a plain text block (no Markdown parsing). |
+| ``md<br>**Markdown**<br>`` | Creates a Markdown-rendered content block.        |
+| `<!-- Comment -->`       | Adds a comment (not displayed in output).         |
+
+#### Complete Example
+
+```
+# System Architecture {style="background: #f0f8ff;"}
+
+## Frontend Layer {layout=r}
+### React App {id=react-app}
+- User Interface
+- State Management
+
+### Vue App
+- Component Library
+- Router
+
+## {layout=r}
+### API Gateway
+- Authentication
+- Rate Limiting
+
+### Microservices
+- User Service
+- Order Service
+
+##| Sidebar Content
+This appears as a left sidebar.
+
+## Backend Layer |
+This appears as a right sidebar.
+
+## Database Layer {layout=c}
+
+```text
+Configuration:
+- Host: localhost
+- Port: 5432
+```
+
+```md
+**Important Notes:**
+- Use connection pooling
+- Enable SSL encryption
+```
+
+<!-- This is a comment and won't be displayed -->
+
 
 ### 🤔 Why Structura?
 
@@ -102,36 +176,285 @@ This project is licensed under the GNU GPLv3 License. See the [LICENSE](LICENSE)
 
 ### ✨ 核心功能
 
-* **🤖 AI 优先的语法**: 使用 `#` 和 `-` 的简单、基于行的层级语法，对于大语言模型来说生成起来易如反掌。
-* **↔️ 交互式拖拽排序**: 在容器内自由地重新排序任何组件，以获得完美的布局。
-* **🎨 动态布局**: 只需单击一下，即可在**垂直**和**水平**布局之间即时切换任何组件组。
-* **📐 高级结构**:
-    * **侧边栏**: 在任何组件的左侧或右侧附加垂直的侧边栏。
-    * **隐形容器**: 使用无标题的块 (`##`) 对组件进行分组以调整布局，而不会增加视觉混乱。
-* **📚 丰富的内嵌内容**:
-    * 嵌入并渲染 **Markdown** 以获取详尽的描述。
-    * 使用**多行文本块**来保留代码片段或日志的格式。
-* **💻 代码生成与导出**: 工具实时生成整洁、对应的 HTML 和 CSS。将您的最终图表导出为独立的 HTML 文件。
+Structura 能够将您的想法以前所未有的速度和灵活性转化为清晰、美观且功能强大的架构图。
+
+* **🤖 AI 优先，秒速出图**
+    忘掉鼠标拖拽的繁琐吧！用最简单的文本描述您的架构，或者直接让 AI 大模型为您生成初稿。Structura 的语法对 AI 极其友好，这意味着您可以在几秒钟内得到一个完整的架构图，然后专注于迭代和优化，而不是从零开始。
+
+* **↔️ 所见即所得，实时交互**
+    这绝不是一张静态图片！在右侧预览区，每个模块都是**鲜活**的。直接用鼠标**拖拽排序**，点击右上角按钮即可在**水平/垂直布局**间丝滑切换。您的每一次调整，都会立刻反映在右侧代码中，实现了完美的双向同步。
+
+* **🎨 精准控制，自由定制**
+    您的图表，由您做主。通过简单的指令，您可以为任何模块**指定布局、修改颜色、自定义样式**。利用“隐形容器”，您可以轻松实现“一横两纵”等复杂布局，而不会在视觉上增加任何多余的元素。Structura 赋予您像素级的控制权，让图表精准表达您的设计。
+
+* **📚 不只是方块，更是活文档**
+    架构图不应只是空洞的标题。Structura 支持直接在模块内嵌入并渲染 **Markdown** 和**多行代码/文本块**。这意味着您的图表本身就是一份详尽、格式精美的设计文档，所有信息一目了然，无需在多个文件间来回切换。
+
+* **🔗 万物皆可连（即将推出）**
+    通过为模块设置唯一ID，您将能够轻松地在它们之间绘制**连接线**，清晰地展示数据流、依赖关系和调用链路，让您的架构图真正“活”起来。
 
 ### 📖 语法指南
 
 Structura 的语法旨在简单直观。
 
+#### 基础结构语法
+> 只有两种基础语法： `#` 和 `-`。掌握这两种就够应付 **80%** 以上场景了！
+
 | 语法                     | 描述                                     |
 | -------------------------- | ---------------------------------------- |
 | `# 标题`                   | 创建一个顶级模块。                       |
-| `## 标题`, `### 标题`... | 创建一个嵌套的子模块（最多10级）。       |
-| `##` (无标题)            | 创建一个不可见的结构化容器。             |
-| `##\| 标题`                | 创建一个父级的右侧边栏。                 |
-| `\|## 标题`                | 创建一个父级的左侧边栏。                 |
-| `- 列表项`                 | 在模块内创建一个简单的文本项。           |
-| `- - 列表项`               | 渲染一个以 `-` 开头的列表项。            |
-| `-{ ... }`                 | 创建一个多行、保留格式的文本块。         |
-| `- \`\`\`md ... \`\`\``     | 创建一个内容被渲染为 Markdown 的块。     |
+| `## 标题`, `### 标题`... | 创建一个子模块（最多10级），嵌套进离自己最近的前一个母块里。可以循环嵌套。       |
+| `##` (无标题)            | 创建一个不可见的隐形容器，可以作为一个不可见的母级使用，用于实现”一横两纵“这种复杂排布。             |
+| `- 文本项`                 | 在模块内创建一个简单的文本项。           |
+
+#### 侧边栏语法
+> 有时候，日志模块需要显示在一侧，贯穿其他模块。所以我们引入了 `|` 语法。
+> 其实用不带标题的 `##` 结构块也可以实现这个效果，但是侧边块语法更加方便，也比 `##` 结构块更窄。
+
+| 语法                     | 描述                                     |
+| -------------------------- | ---------------------------------------- |
+| `##\| 标题`               | 创建左侧边栏块。                         |
+| `## 标题 \|`              | 创建右侧边栏块。                         |
+
+#### 块属性语法
+> - 有时候我们想直接在代码里控制块是横排还是纵排
+> - 有时候我们想修改块的颜色
+> - 有时候我们想给块起个名字（用来拉箭头）
+> - 所以我们引入了 `:` 语法和 `{}` 语法
+
+| 语法                     | 描述                                     |
+| -------------------------- | ---------------------------------------- |
+| `## 标题 :my-id`           | 为块设置自定义ID。                |
+| `## 标题 r:`         | 应用横向布局。                    |
+| `## 标题 c:`         | 应用纵向布局。                    |
+| `## 标题 c:my-id`         | 同时设置ID并应用纵向布局。                    |
+| `## 标题 {style="background-color: red;"}` | 为块应用自定义CSS样式。这里填写的style属性会直接添加到块的style属性中。            |
+| `## 标题 c:my-id {style="background-color: red;"}`      | 同时应用上面的所有功能。                           |
+| `## 标题 {id=my-id, layout=c, style="background-color: red;"}`      | 其实类似 `c:my-id` 这种语法是 `{}` 语法的语法糖。所以，我们其实可以直接在 `{}` 语法中完成所有事情。                         |
+
+#### 内容块语法
+> 有没有可能，在内容块里面写Markdown呢？
+> 我们引入了 ` ``` ` 语法。另外，为了方便写注释，我们还引入了 `//` 语法。
+
+| 语法                     | 描述                                     |
+| -------------------------- | ---------------------------------------- |
+| \`\`\`文本块 \`\`\` | 创建可以跨行的纯文本块。     |
+| \`\`\`md  # 标题 \`\`\` | 创建跨越多行的Markdown渲染内容块。           |
+| `//`           | 添加注释（不在输出中显示）。             |
+
+#### 完整示例
+
+``````text
+# 前端层{layout=r}
+## React/Vue前端
+- 学生和教师界面
+## Swagger UI文档
+- FastAPI自动生成课程 API 文档
+## 移动端应用
+- 学习助手 · 待开发
+
+# 后端层
+
+## API路由层{layout=c}
+
+### {layout=c}
+#### 中间件
+##### CORS
+##### JWT验签
+##### JWT解析
+##### 错误捕获
+
+#### 依赖注入
+##### 时区转换
+##### 多租户session分流
+
+### 路由模块 [事务提交]
+#### 认证
+-  /api/v1/auth  
+#### 课程
+- /api/v1/course
+#### 用户
+- /api/v1/users
+#### 成绩
+- /api/v1/grades
+#### AI Tutor
+- /api/v1/tutor
+#### ......
+
+## 业务服务层
+### 公共服务{style="background-color: #89e6e1"}
+- 租户验证
+- [访问public schema]
+### 认证服务
+- JWT管理/登录注册  
+### 课程服务
+- 课程 CRUD/筛选
+### 用户服务
+- 学生/教师资料管理
+### 成绩服务
+- 考试成绩统计/指标
+### AI Tutor 服务
+- 作业批改/学习建议
+### 待办服务
+- 任务管理
+### ......
+
+## Agent功能层{layout=c}
+
+### Agent
+#### 工作流模式 - 节约token·效果稳定
+##### 作业批改Agent
+- 批量模式
+##### 学习报告分析Agent
+##### ......
+#### Agent模式 - 功能强大·自由度高
+##### 课程推荐Agent
+##### 风险监测Agent
+##### 学习答疑Agent
+- 即时问答模式
+##### ......
+
+###
+#### Agent工具
+##### 联网搜索
+##### 网页浏览
+##### 文件下载
+##### 知识检索
+##### 相似检索
+##### ....
+
+#### MCP C/S
+##### 本地 MCP Server
+##### 云端 MCP Server
+##### 本地 MCP Client
+
+#### 知识库
+##### 知识导入
+##### 知识管理
+##### 知识编排
+##### 层级构建
+
+### 模型管理
+- AzureOpenAI · Qwen · ChatGLM · Kimi · Claude · OpenAI · Doubao · ......
+#### LLMs/MultiModal-LLMs
+#### Embeddings
+#### Reranks
+#### ASR
+#### TTS
+#### ......
+
+##
+### 外部集成层
+#### 邮件适配器
+- Microsoft Graph
+- IMAP/POP3
+- ...
+#### IM软件适配器
+- 企业微信
+- 飞书
+- ...
+#### 教育系统适配器
+- Blackboard
+- Moodle
+- ...
+#### Agent适配器
+- Dify
+- n8b
+- ...
+
+### 异步任务层
+- Celery Worker
+#### 定时任务
+##### 成绩计算
+##### 数据同步
+##### 报表生成
+#### 异步任务
+##### Agent任务
+##### 作业批改
+##### 学习分析
+
+## 数据访问层
+
+### Repository模式
+- 对象关系映射 · 业务逻辑 · 事务管理
+#### 课程repo
+#### 公共repo
+#### 用户repo
+#### ......
+
+### ORM模型
+- SQLAlchemy 2.0 · 区分schema · 支持Alembic迁移
+#### 用户模型
+#### 课程模型
+#### 成绩模型
+#### ......
+
+## 日志层 {layout=c}|
+### 组件化绑定
+- 区分模块
+### 异步日志
+- 避免阻塞事件循环
+### 捕获 logging
+- 捕获三方库日志
+- 捕获子模块日志
+### 文件配置
+- 4 MB 轮转
+- 30 天保留
+- zip 存档
+### 日志级别热切换
+- 方便调试
+### 协程崩溃捕获
+- 防止"任务静默失败"
+
+## 数据存储层
+### PostgreSQL
+- 主数据库
+- 多租户Schema级强隔离
+### MongoDB
+- 存储课件文件
+- 存储低热持久大集合
+### Redis
+- 缓存/会话
+- JWT黑名单
+- Celery
+### Alembic
+- 数据库迁移
+- 版本管理
+- 租户创建
+
+# 部署层{layout=r}
+## Docker
+- 所有组件容器化
+- 自动初始化数据库
+- 自动初始化测试租户
+- 自动初始化测试用户
+## Docker Compose
+- 便捷部署
+## Nginx
+- 支持API挂载
+
+# 数据库连接信息 {layout=c}
+## 配置信息
+- ```text
+- 主机: localhost
+- 端口: 5432
+```
+## 其他信息
+- ```md
+**重要说明:**
+- 使用连接池
+- 启用SSL加密
+```
+
+// 这是注释，不会显示
+
+```
+
+``````
 
 ### 🤔 为什么选择 Structura?
 
-尽管像 Mermaid 这样的工具非常出色，但它们生成的是静态图像。修改布局或结构需要重写代码。**Structura 与众不同。**
+尽管像 Mermaid 这样的工具非常出色，但它们生成的是静态图像。修改布局或结构需要重写代码。Structura 可以直接拖动块，或调节一些设置。
 
 ### 🛠️ 如何使用
 
@@ -141,11 +464,18 @@ Structura 的语法旨在简单直观。
 
 Structura 才刚刚起步。以下是一些对未来的构想：
 
-- [ ] 主题和自定义样式语法
-- [ ] 颜色 边框 位置 大小 形状 连接线
+- [x] 主题和自定义样式语法
+- [x] 颜色、边框、间距 
+- [ ] 位置、大小、形状、连接线
 - [ ] 互有重叠的块
-- [ ] 根据需求自动圈选系统架构范围并画出系统架构图的Agent
+- [ ] 添加一个开关来切换图表/HTML/双列
+- [ ] HTML可编辑，以及语法高亮。
+- [ ] DSL、图表、HTML应该会互相更新
+- [ ] 每个块支持图形化设置
+- [ ] DSL语法高亮
+- **[ ] 根据需求自动圈选系统架构范围并画出系统架构图的Agent**
 
 ### 📄 开源许可
 
 本项目采用 GNU3.0 许可证。有关详细信息，请参阅 [LICENSE](LICENSE) 文件。
+```

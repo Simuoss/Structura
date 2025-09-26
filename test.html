@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>交互式架构图生成器</title>
     <!-- 引入 SortableJS 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <!-- 引入 Marked.js 用于解析Markdown -->
     <script src="https://cdn.bootcdn.net/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <!-- 基础样式 -->
@@ -27,6 +27,8 @@
         <div class="panel panel-controls">
             <h2>输入结构</h2>
             <textarea id="input-textarea" placeholder="使用 # 定义层级, - 定义项目..."></textarea>
+            
+            
             
             <h2>操作</h2>
             <button class="button" id="generate-btn">生成 / 更新图表</button>
@@ -101,19 +103,60 @@
                 </div>
             </div>
 
-            <h2>说明</h2>
-            <ul style="font-size: 14px; padding-left: 20px;">
-                <li><strong># 标题</strong>: 定义一个块。</li>
-                <li><strong>##</strong> (无标题): 定义一个不可见的结构层。</li>
-                <li><strong>##| 标题</strong>: 定义左侧边栏。</li>
-                <li><strong>## 标题|</strong>: 定义右侧边栏。</li>
-                <li><strong>- item</strong>: 定义一个列表项。</li>
-                <li><strong>- - item</strong>: 显示一个带'-'的列表项。</li>
-                <li><strong>- ``` ... ```</strong>: 定义普通文本块。</li>
-                <li><strong>- ```md ... ```</strong>: 定义Markdown块。</li>
-                <li><strong>拖拽</strong>: 在同级容器内拖拽块进行排序。</li>
-                <li><strong>右上角按钮</strong>: 切换子块布局。</li>
-            </ul>
+            <h2>📖 语法指南</h2>
+            <div class="syntax-guide">
+                <p style="margin-bottom: 12px; font-style: italic;">Structura 的语法旨在简单直观。</p>
+                
+                <details style="margin-bottom: 8px;" open>
+                    <summary>基础结构语法</summary>
+                    <div>
+                        <p class="syntax-description">只有两种基础语法：<code>#</code> 和 <code>-</code>。掌握这两种就够应付 <strong>80%</strong> 以上场景了！</p>
+                        <p><code># 标题</code> - 创建一个顶级模块</p>
+                        <p><code>## 标题</code>, <code>### 标题</code>... - 创建一个子模块（最多10级），嵌套进离自己最近的前一个母块里。可以循环嵌套</p>
+                        <p><code>##</code> (无标题) - 创建一个不可见的隐形容器，可以作为一个不可见的母级使用，用于实现"一横两纵"这种复杂排布</p>
+                        <p><code>- 文本项</code> - 在模块内创建一个简单的文本项</p>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>侧边栏语法</summary>
+                    <div>
+                        <p class="syntax-description">有时候，日志模块需要显示在一侧，贯穿其他模块。所以我们引入了 <code>|</code> 语法。<br>其实用不带标题的 <code>##</code> 结构块也可以实现这个效果，但是侧边块语法更加方便，也比 <code>##</code> 结构块更窄。</p>
+                        <p><code>##| 标题</code> - 创建左侧边栏块</p>
+                        <p><code>## 标题 |</code> - 创建右侧边栏块</p>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>块属性语法</summary>
+                    <div>
+                        <p class="syntax-description">
+                            • 有时候我们想直接在代码里控制块是横排还是纵排<br>
+                            • 有时候我们想修改块的颜色<br>
+                            • 有时候我们想给块起个名字（用来拉箭头）<br>
+                            • 所以我们引入了 <code>:</code> 语法和 <code>{}</code> 语法
+                        </p>
+                        <p><code>## 标题 :my-id</code> - 为块设置自定义ID</p>
+                        <p><code>## 标题 r:</code> - 应用横向布局</p>
+                        <p><code>## 标题 c:</code> - 应用纵向布局</p>
+                        <p><code>## 标题 c:my-id</code> - 同时设置ID并应用纵向布局</p>
+                        <p><code>## 标题 {style="background-color: red;"}</code> - 为块应用自定义CSS样式。这里填写的style属性会直接添加到块的style属性中</p>
+                        <p><code>## 标题 c:my-id {style="background-color: red;"}</code> - 同时应用上面的所有功能</p>
+                        <p><code>## 标题 {id=my-id, layout=c, style="background-color: red;"}</code> - 其实类似 <code>c:my-id</code> 这种语法是 <code>{}</code> 语法的语法糖。所以，我们其实可以直接在 <code>{}</code> 语法中完成所有事情</p>
+                    </div>
+                </details>
+                
+                <details>
+                    <summary>内容块语法</summary>
+                    <div>
+                        <p class="syntax-description">有没有可能，在内容块里面写Markdown呢？<br>我们引入了 <code>```</code> 语法。另外，为了方便写注释，我们还引入了 <code>//</code> 语法。</p>
+                        <p><code>```文本块 ```</code> - 创建可以跨行的纯文本块</p>
+                        <p><code>```md # 标题 ```</code> - 创建跨越多行的Markdown渲染内容块</p>
+                        <p><code>//</code> - 添加注释（不在输出中显示）</p>
+                    </div>
+                </details>
+            </div>
+
         </div>
         <div class="panel panel-preview">
             <h2>交互式预览</h2>
@@ -125,667 +168,224 @@
         </div>
     </main>
 
+    <!-- 引入模块化脚本 -->
+    <script src="core/config.js"></script>
+    <script src="core/ast.js"></script>
+    <script src="core/render.js"></script>
+    <script src="core/main.js"></script>
+    
     <script>
-        const inputTextArea = document.getElementById('input-textarea');
-        const generateBtn = document.getElementById('generate-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const diagramOutput = document.getElementById('diagram-output');
-        const codePreview = document.querySelector('#code-preview code');
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 创建管理器实例
+            const astParser = new ASTParser();
+            const renderer = new Renderer();
+            const configManager = new ConfigManager();
+            const mainManager = new MainManager();
+            
+            // 设置依赖关系
+            mainManager.setDependencies(astParser, renderer, configManager);
+            
+            // 初始化各个管理器
+            await configManager.initialize();
+            await renderer.initialize();
+            await mainManager.initialize();
+            
+            // 设置默认输入内容
+            const inputTextArea = document.getElementById('input-textarea');
+            inputTextArea.value = `# 前端层{layout=r}
+## React/Vue前端
+- 学生和教师界面
+## Swagger UI文档
+- FastAPI自动生成课程 API 文档
+## 移动端应用
+- 学习助手 · 待开发
 
-        // 默认输入内容示例
-        inputTextArea.value = `# 示例层
-##| 功能演示
-### Markdown
-- \`\`\`md
-# H1 标题
-- 列表项 1
-- **粗体** and *斜体*
-\`\`\`
-### 普通文本
-- \`\`\`
-此内容保留换行和缩进。
-  line 2
-line 3
-\`\`\`
-### 结构层示例
-- 使用无标题的'##'来创建横向组
+# 后端层
 
-## 主内容区
-### 普通块
-- 普通列表项
-- - 以'-'开头的列表项
+## API路由层{layout=c}
+
+### 
+#### 中间件
+##### CORS
+##### JWT验签
+##### JWT解析
+##### 错误捕获
+
+#### 依赖注入
+##### 时区转换
+##### 多租户session分流
+
+### 路由模块 [事务提交]
+#### 认证
+-  /api/v1/auth  
+#### 课程
+- /api/v1/course
+#### 用户
+- /api/v1/users
+#### 成绩
+- /api/v1/grades
+#### AI Tutor
+- /api/v1/tutor
+#### ......
+
+## 业务服务层
+### 公共服务{style="background-color: #89e6e1"}
+- 租户验证
+- [访问public schema]
+### 认证服务
+- JWT管理/登录注册  
+### 课程服务
+- 课程 CRUD/筛选
+### 用户服务
+- 学生/教师资料管理
+### 成绩服务
+- 考试成绩统计/指标
+### AI Tutor 服务
+- 作业批改/学习建议
+### 待办服务
+- 任务管理
+### ......
+
+## Agent功能层{layout=c}
+
+### Agent
+#### 工作流模式 - 节约token·效果稳定
+##### 作业批改Agent
+- 批量模式
+##### 学习报告分析Agent
+##### ......
+#### Agent模式 - 功能强大·自由度高
+##### 课程推荐Agent
+##### 风险监测Agent
+##### 学习答疑Agent
+- 即时问答模式
+##### ......
+
+###
+#### Agent工具
+##### 联网搜索
+##### 网页浏览
+##### 文件下载
+##### 知识检索
+##### 相似检索
+##### ....
+
+#### MCP C/S
+##### 本地 MCP Server
+##### 云端 MCP Server
+##### 本地 MCP Client
+
+#### 知识库
+##### 知识导入
+##### 知识管理
+##### 知识编排
+##### 层级构建
+
+### 模型管理
+- AzureOpenAI · Qwen · ChatGLM · Kimi · Claude · OpenAI · Doubao · ......
+#### LLMs/MultiModal-LLMs
+#### Embeddings
+#### Reranks
+#### ASR
+#### TTS
+#### ......
+
 ##
-### 横向组块 A
-- 内容A
-### 横向组块 B
-- 内容B`;
+### 外部集成层
+#### 邮件适配器
+- Microsoft Graph
+- IMAP/POP3
+- ...
+#### IM软件适配器
+- 企业微信
+- 飞书
+- ...
+#### 教育系统适配器
+- Blackboard
+- Moodle
+- ...
+#### Agent适配器
+- Dify
+- n8b
+- ...
 
-        function parseText(text) {
-            const lines = text.split('\n');
-            const root = { level: 0, children: [] };
-            const path = [root];
-            let i = 0;
+### 异步任务层
+- Celery Worker
+#### 定时任务
+##### 成绩计算
+##### 数据同步
+##### 报表生成
+#### 异步任务
+##### Agent任务
+##### 作业批改
+##### 学习分析
 
-            while (i < lines.length) {
-                let line = lines[i];
+## 数据访问层
 
-                if (line.trim() === '') {
-                    i++;
-                    continue;
-                }
-                
-                const headingMatch = line.match(/^(#+)\s*(.*)/);
-                
-                if (headingMatch) {
-                    const level = headingMatch[1].length;
-                    let title = headingMatch[2].trim();
-                    let sidebar = 'none';
-                    let isStructureOnly = false;
+### Repository模式
+- 对象关系映射 · 业务逻辑 · 事务管理
+#### 课程repo
+#### 公共repo
+#### 用户repo
+#### ......
 
-                    if (title.startsWith('|')) {
-                        sidebar = 'left';
-                        title = title.substring(1).trim();
-                    } else if (title.endsWith('|')) {
-                        sidebar = 'right';
-                        title = title.slice(0, -1).trim();
-                    }
+### ORM模型
+- SQLAlchemy 2.0 · 区分schema · 支持Alembic迁移
+#### 用户模型
+#### 课程模型
+#### 成绩模型
+#### ......
 
-                    if (title.trim() === '') {
-                        isStructureOnly = true;
-                    }
-                    
-                    const node = { level, title, items: [], children: [], sidebar, isStructureOnly };
-                    while (path.length > level) path.pop();
-                    path[path.length - 1].children.push(node);
-                    path.push(node);
-                    i++;
-                } else if (line.trim().startsWith('-')) {
-                    const currentParent = path[path.length - 1];
-                    if (!currentParent) { i++; continue; }
+## 日志层 {layout=c}|
+### 组件化绑定
+- 区分模块
+### 异步日志
+- 避免阻塞事件循环
+### 捕获 logging
+- 捕获三方库日志
+- 捕获子模块日志
+### 文件配置
+- 4 MB 轮转
+- 30 天保留
+- zip 存档
+### 日志级别热切换
+- 方便调试
+### 协程崩溃捕获
+- 防止"任务静默失败"
 
-                    const trimmedLine = line.trim();
+## 数据存储层
+### PostgreSQL
+- 主数据库
+- 多租户Schema级强隔离
+### MongoDB
+- 存储课件文件
+- 存储低热持久大集合
+### Redis
+- 缓存/会话
+- JWT黑名单
+- Celery
+### Alembic
+- 数据库迁移
+- 版本管理
+- 租户创建
 
-                    if (trimmedLine.startsWith('- ```md')) {
-                        let content = [];
-                        i++;
-                        while (i < lines.length && !lines[i].trim().startsWith('```')) {
-                            content.push(lines[i]);
-                            i++;
-                        }
-                        currentParent.items.push({ type: 'markdown', content: content.join('\n') });
-                        if (i < lines.length) i++; // Skip the closing ```
-                    } 
-                    else if (trimmedLine.startsWith('- ```')) {
-                        let content = [];
-                        i++;
-                        while (i < lines.length && !lines[i].trim().startsWith('```')) {
-                            content.push(lines[i]);
-                            i++;
-                        }
-                        currentParent.items.push({ type: 'text', content: content.join('\n') });
-                        if (i < lines.length) i++; // Skip the closing ```
-                    }
-                    else {
-                        let content = trimmedLine.substring(1).trim();
-                        if (content.startsWith('-')) {
-                            content = content.substring(1).trim();
-                            currentParent.items.push({ type: 'item', content: `- ${content}` });
-                        } else {
-                            currentParent.items.push({ type: 'item', content: content });
-                        }
-                        i++;
-                    }
-                } else {
-                    i++;
-                }
-            }
-            return root.children;
-        }
-        
-        function renderNodeGroup(nodes, parentElement, defaultLayout = null) {
-            if (!nodes || nodes.length === 0) return;
-
-            const container = document.createElement('div');
-            const level = nodes[0].level;
-            container.className = defaultLayout ? `block-container ${defaultLayout}` : level <= 2 ? 'block-container layout-vertical' : 'block-container layout-horizontal';
-            parentElement.appendChild(container);
-
-            nodes.forEach(node => {
-                const block = document.createElement('div');
-                block.className = 'block';
-                if (node.isStructureOnly) {
-                    block.classList.add('structure-only-block');
-                    block.setAttribute('data-structure-only', 'true');
-                }
-                block.setAttribute('data-level', node.level);
-
-                if (!node.isStructureOnly) {
-                    const title = document.createElement('h3');
-                    title.className = 'block-title';
-                    title.textContent = node.title;
-                    block.appendChild(title);
-                }
-
-                if (node.items.length > 0) {
-                    const itemsContainer = document.createElement('div');
-                    itemsContainer.className = 'block-items-container';
-                    node.items.forEach(item => {
-                        if (item.type === 'markdown') {
-                            const mdDiv = document.createElement('div');
-                            mdDiv.className = 'markdown-content';
-                            mdDiv.innerHTML = marked.parse(item.content);
-                            itemsContainer.appendChild(mdDiv);
-                        } else if (item.type === 'text') {
-                            const pre = document.createElement('pre');
-                            pre.className = 'text-content';
-                            pre.textContent = item.content;
-                            itemsContainer.appendChild(pre);
-                        } else {
-                            const p = document.createElement('p');
-                            p.textContent = item.content;
-                            itemsContainer.appendChild(p);
-                        }
-                    });
-                    block.appendChild(itemsContainer);
-                }
-
-                if (node.children.length > 0) {
-                    const layoutToggle = document.createElement('div');
-                    layoutToggle.className = 'layout-toggle';
-                    layoutToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`;
-                    layoutToggle.title = "切换布局";
-                    
-                    // 如果是结构层，根据复选框状态设置显示和样式
-                    if (node.isStructureOnly) {
-                        if (!showStructureTogglesCheckbox.checked) {
-                            layoutToggle.style.display = 'none';
-                        } else {
-                            block.classList.add('show-structure');
-                        }
-                    }
-                    
-                    block.appendChild(layoutToggle);
-                    renderDiagram(node.children, block);
-                }
-                container.appendChild(block);
-            });
-        }
-        
-        function renderDiagram(nodes, parentElement) {
-            if (!nodes || nodes.length === 0) return;
-
-            const sidebarLeftNodes = nodes.filter(n => n.sidebar === 'left');
-            const sidebarRightNodes = nodes.filter(n => n.sidebar === 'right');
-            const mainNodes = nodes.filter(n => n.sidebar === 'none');
-            const hasSidebar = sidebarLeftNodes.length > 0 || sidebarRightNodes.length > 0;
-
-            let targetParentElement = parentElement;
-
-            if (hasSidebar) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'block-content-wrapper';
-                
-                if (sidebarLeftNodes.length > 0) {
-                    const sidebarEl = document.createElement('div');
-                    sidebarEl.className = 'block-sidebar';
-                    renderNodeGroup(sidebarLeftNodes, sidebarEl, 'layout-vertical');
-                    wrapper.appendChild(sidebarEl);
-                }
-
-                const mainContentEl = document.createElement('div');
-                mainContentEl.className = 'block-main-content';
-                wrapper.appendChild(mainContentEl);
-                targetParentElement = mainContentEl;
-
-                if (sidebarRightNodes.length > 0) {
-                     const sidebarEl = document.createElement('div');
-                    sidebarEl.className = 'block-sidebar';
-                    renderNodeGroup(sidebarRightNodes, sidebarEl, 'layout-vertical');
-                    wrapper.appendChild(sidebarEl);
-                }
-                parentElement.appendChild(wrapper);
-            }
-            renderNodeGroup(mainNodes, targetParentElement);
-        }
-
-        async function generateAndRender() {
-            const text = inputTextArea.value;
-            const tree = parseText(text);
-            diagramOutput.innerHTML = '';
-            renderDiagram(tree, diagramOutput);
-            setupSortable();
-            setupLayoutToggles();
-            // 应用倍数设置
+# 部署层{layout=r}
+## Docker
+- 所有组件容器化
+- 自动初始化数据库
+- 自动初始化测试租户
+- 自动初始化测试用户
+## Docker Compose
+- 便捷部署
+## Nginx
+- 支持API挂载
+`;
+            
+            // 首次进入网页自动触发一次渲染
             setTimeout(() => {
-                applySpacingMultipliers();
-            }, 100); // 延迟执行确保DOM已完全渲染
-            await updateCodePreview();
-        }
-
-        function setupSortable() {
-            document.querySelectorAll('.block-container').forEach(container => {
-                new Sortable(container, {
-                    group: 'nested', animation: 150, ghostClass: 'sortable-ghost',
-                    dragClass: 'sortable-drag', fallbackOnBody: true, swapThreshold: 0.65,
-                    onEnd: async () => await updateCodePreview(),
-                });
-            });
-        }
-        
-        function setupLayoutToggles() {
-            document.querySelectorAll('.layout-toggle').forEach(toggle => {
-                toggle.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const container = toggle.closest('.block').querySelector('.block-container');
-                    if (!container) return;
-
-                    const isHorizontal = container.classList.contains('layout-horizontal');
-                    container.classList.toggle('layout-horizontal', !isHorizontal);
-                    container.classList.toggle('layout-vertical', isHorizontal);
-                    
-                    toggle.innerHTML = isHorizontal 
-                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`
-                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>`;
-
-                    await updateCodePreview();
-                });
-            });
-        }
-
-        async function getDiagramCSS() {
-            // 从CSS文件中读取当前主题的样式
-            try {
-                const cssContent = await loadThemeCSS(currentTheme);
-                return cssContent;
-            } catch (error) {
-                console.error('获取主题CSS失败:', error);
-                // 如果加载失败，返回基本样式
-                return `
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #f4f7f9; }
-        .block { border: 1px solid #ddd; border-radius: 8px; background-color: #fff; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin: 8px; }
-        .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-        .block-title { font-weight: 600; margin: 0 0 8px 0; }
-        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
-        .block-items-container p { margin: 0; }
-        .markdown-content > *:first-child { margin-top: 0; } .markdown-content > *:last-child { margin-bottom: 0; }
-        .text-content { white-space: pre; font-family: monospace; background-color: #f8f8f8; padding: 8px; border-radius: 4px; margin: 0;}
-        .block-container { min-height: 20px; }
-        .layout-vertical { display: flex; flex-direction: column; }
-        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
-        .layout-horizontal > .block { flex: 1; }
-        .block-content-wrapper { display: flex; align-items: stretch; gap: 16px; }
-        .block-main-content { flex: 1; min-width: 0; }
-        .block-sidebar { flex: 0 0 240px; }
-                `.trim();
-            }
-        }
-
-        async function updateCodePreview() {
-            const clone = diagramOutput.cloneNode(true);
-            clone.querySelectorAll('.layout-toggle').forEach(el => el.remove());
-            const htmlContent = clone.innerHTML;
-            
-            // 异步获取CSS内容
-            const cssContent = await getDiagramCSS();
-            
-            const fullHtml = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>架构图</title>
-    <style>
-        ${cssContent}
-    </style>
-</head>
-<body>
-    ${htmlContent}
-</body>
-</html>`;
-            codePreview.textContent = fullHtml;
-        }
-        
-        async function exportHTML() {
-            // 确保代码预览是最新的
-            await updateCodePreview();
-            
-            const blob = new Blob([codePreview.textContent], { type: 'text/html' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'architecture-diagram.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        generateBtn.addEventListener('click', generateAndRender);
-        exportBtn.addEventListener('click', exportHTML);
-
-        // 结构层布局按钮显示控制
-        const showStructureTogglesCheckbox = document.getElementById('show-structure-toggles');
-        
-        function toggleStructureLayoutButtons(show) {
-            const structureBlocks = document.querySelectorAll('.block[data-structure-only="true"]');
-            structureBlocks.forEach(block => {
-                const layoutToggle = block.querySelector('.layout-toggle');
-                if (layoutToggle) {
-                    layoutToggle.style.display = show ? 'block' : 'none';
-                }
-                
-                // 根据按钮显示状态切换结构层的视觉样式
-                if (show) {
-                    block.classList.add('show-structure');
-                } else {
-                    block.classList.remove('show-structure');
-                }
-            });
-        }
-        
-        showStructureTogglesCheckbox.addEventListener('change', (e) => {
-            toggleStructureLayoutButtons(e.target.checked);
-        });
-
-        // 轮廓线显示控制
-        const hideOutlinesCheckbox = document.getElementById('hide-outlines');
-        
-        function toggleOutlines(hide) {
-            const diagramOutput = document.getElementById('diagram-output');
-            if (hide) {
-                diagramOutput.classList.add('hide-outlines');
-            } else {
-                diagramOutput.classList.remove('hide-outlines');
-            }
-        }
-        
-        hideOutlinesCheckbox.addEventListener('change', (e) => {
-            toggleOutlines(e.target.checked);
-        });
-
-        // 字体列表定义
-        const fontList = [
-            { name: '系统默认', value: 'system', family: '' },
-            { name: '[衬线] Georgia', value: 'georgia', family: 'Georgia, serif' },
-            { name: '[衬线] Times New Roman', value: 'times', family: '"Times New Roman", Times, serif' },
-            { name: '[衬线] Palatino', value: 'palatino', family: '"Palatino Linotype", "Book Antiqua", Palatino, serif' },
-            { name: '[衬线] Garamond', value: 'garamond', family: 'Garamond, serif' },
-            { name: '[无衬线] Arial', value: 'arial', family: 'Arial, sans-serif' },
-            { name: '[无衬线] Helvetica', value: 'helvetica', family: 'Helvetica, Arial, sans-serif' },
-            { name: '[无衬线][中字] Segoe UI', value: 'segoe', family: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' },
-            { name: '[无衬线][中字] Calibri', value: 'calibri', family: 'Calibri, sans-serif' },
-            { name: '[等宽] Courier New', value: 'courier', family: '"Courier New", Courier, monospace' },
-            { name: '[等宽][中字] Consolas', value: 'consolas', family: 'Consolas, "Lucida Console", monospace' },
-            { name: '[等宽] Monaco', value: 'monaco', family: 'Monaco, "Menlo", "Ubuntu Mono", monospace' },
-            { name: '[等宽][中字] Source Code Pro', value: 'source-code', family: '"Source Code Pro", "Courier New", monospace' },
-            { name: '[无衬线][中字] 微软雅黑', value: 'microsoft-yahei', family: '"Microsoft YaHei", "微软雅黑", sans-serif' },
-            { name: '[衬线][中字] 宋体', value: 'simsun', family: 'SimSun, "宋体", serif' },
-            { name: '[等宽][中字] 等距更纱黑体', value: 'sarasa-mono', family: '"Sarasa Mono SC", "等距更纱黑体 SC", monospace' }
-        ];
-
-        // 字体设置控制
-        const fontFamilySelect = document.getElementById('font-family');
-        const fontSizeSelect = document.getElementById('font-size');
-        
-        // 动态生成字体选项
-        function initializeFontOptions() {
-            fontFamilySelect.innerHTML = '';
-            fontList.forEach(font => {
-                const option = document.createElement('option');
-                option.value = font.value;
-                option.textContent = font.name;
-                fontFamilySelect.appendChild(option);
-            });
-        }
-        
-        function updateFontSettings() {
-            const diagramOutput = document.getElementById('diagram-output');
-            const fontValue = fontFamilySelect.value;
-            const fontSize = fontSizeSelect.value;
-            
-            // 找到对应的字体
-            const selectedFont = fontList.find(font => font.value === fontValue);
-            
-            // 直接设置字体族
-            if (selectedFont && selectedFont.family) {
-                diagramOutput.style.fontFamily = selectedFont.family;
-            } else {
-                diagramOutput.style.fontFamily = '';
-            }
-            
-            // 设置字号
-            diagramOutput.style.fontSize = fontSize + 'px';
-        }
-        
-        // 初始化字体选项
-        initializeFontOptions();
-        
-        fontFamilySelect.addEventListener('change', updateFontSettings);
-        fontSizeSelect.addEventListener('change', updateFontSettings);
-
-        // 倍数控制系统
-        const spacingControls = {
-            global: document.getElementById('global-spacing'),
-            padding: document.getElementById('padding-multiplier'),
-            margin: document.getElementById('margin-multiplier'),
-            border: document.getElementById('border-multiplier'),
-            borderRadius: document.getElementById('border-radius-multiplier')
-        };
-        
-        const spacingValues = {
-            globalValue: document.getElementById('global-spacing-value'),
-            paddingValue: document.getElementById('padding-value'),
-            marginValue: document.getElementById('margin-value'),
-            borderValue: document.getElementById('border-value'),
-            borderRadiusValue: document.getElementById('border-radius-value')
-        };
-        
-        // 更新显示值
-        function updateSpacingValues() {
-            spacingValues.globalValue.textContent = parseFloat(spacingControls.global.value).toFixed(1);
-            spacingValues.paddingValue.textContent = parseFloat(spacingControls.padding.value).toFixed(1);
-            spacingValues.marginValue.textContent = parseFloat(spacingControls.margin.value).toFixed(1);
-            spacingValues.borderValue.textContent = parseFloat(spacingControls.border.value).toFixed(1);
-            spacingValues.borderRadiusValue.textContent = parseFloat(spacingControls.borderRadius.value).toFixed(1);
-        }
-        
-        // 应用倍数到样式
-        function applySpacingMultipliers() {
-            const diagramOutput = document.getElementById('diagram-output');
-            const globalMultiplier = parseFloat(spacingControls.global.value);
-            const paddingMultiplier = parseFloat(spacingControls.padding.value);
-            const marginMultiplier = parseFloat(spacingControls.margin.value);
-            const borderMultiplier = parseFloat(spacingControls.border.value);
-            const borderRadiusMultiplier = parseFloat(spacingControls.borderRadius.value);
-            
-            // 设置CSS变量
-            diagramOutput.style.setProperty('--global-spacing-multiplier', globalMultiplier);
-            diagramOutput.style.setProperty('--padding-multiplier', paddingMultiplier);
-            diagramOutput.style.setProperty('--margin-multiplier', marginMultiplier);
-            diagramOutput.style.setProperty('--border-multiplier', borderMultiplier);
-            diagramOutput.style.setProperty('--border-radius-multiplier', borderRadiusMultiplier);
-            
-            // 直接应用到所有相关元素
-            const blocks = diagramOutput.querySelectorAll('.block');
-            const sidebars = diagramOutput.querySelectorAll('.sidebar');
-            
-            [...blocks, ...sidebars].forEach(element => {
-                // 获取原始样式值（如果没有设置过，使用默认值）
-                const computedStyle = window.getComputedStyle(element);
-                
-                // 应用内边距倍数
-                const originalPadding = element.dataset.originalPadding || computedStyle.padding || '8px';
-                if (!element.dataset.originalPadding) {
-                    element.dataset.originalPadding = originalPadding;
-                }
-                const paddingValue = parseFloat(originalPadding) * globalMultiplier * paddingMultiplier;
-                element.style.padding = paddingValue + 'px';
-                
-                // 应用外边距倍数
-                const originalMargin = element.dataset.originalMargin || computedStyle.margin || '4px';
-                if (!element.dataset.originalMargin) {
-                    element.dataset.originalMargin = originalMargin;
-                }
-                const marginValue = parseFloat(originalMargin) * globalMultiplier * marginMultiplier;
-                element.style.margin = marginValue + 'px';
-                
-                // 应用边框倍数
-                const originalBorderWidth = element.dataset.originalBorderWidth || computedStyle.borderWidth || '1px';
-                if (!element.dataset.originalBorderWidth) {
-                    element.dataset.originalBorderWidth = originalBorderWidth;
-                }
-                const borderValue = parseFloat(originalBorderWidth) * globalMultiplier * borderMultiplier;
-                element.style.borderWidth = borderValue + 'px';
-                
-                // 应用圆角倍数
-                const originalBorderRadius = element.dataset.originalBorderRadius || computedStyle.borderRadius || '4px';
-                if (!element.dataset.originalBorderRadius) {
-                    element.dataset.originalBorderRadius = originalBorderRadius;
-                }
-                const borderRadiusValue = parseFloat(originalBorderRadius) * globalMultiplier * borderRadiusMultiplier;
-                element.style.borderRadius = borderRadiusValue + 'px';
-            });
-        }
-        
-        // 绑定事件监听器
-        Object.values(spacingControls).forEach(control => {
-            control.addEventListener('input', () => {
-                updateSpacingValues();
-                applySpacingMultipliers();
-            });
-        });
-        
-        // 初始化倍数控制
-        updateSpacingValues();
-
-        // 主题切换功能
-        let currentTheme = 'default';
-        const themeSelect = document.getElementById('theme-select');
-        const themeCss = document.getElementById('theme-css');
-        let availableThemes = [];
-        let themeCache = {}; // 缓存已加载的CSS内容
-
-        // 异步加载CSS文件内容
-        async function loadThemeCSS(themeName) {
-            // 如果已经缓存，直接返回
-            if (themeCache[themeName]) {
-                return themeCache[themeName];
-            }
-            
-            try {
-                const response = await fetch(`themes/${themeName}.css`);
-                if (!response.ok) {
-                    throw new Error(`无法加载主题文件: ${themeName}.css`);
-                }
-                const cssContent = await response.text();
-                
-                // 缓存CSS内容
-                themeCache[themeName] = cssContent;
-                return cssContent;
-            } catch (error) {
-                console.error(`加载主题 ${themeName} 失败:`, error);
-                // 如果加载失败，返回空字符串或默认样式
-                return '';
-            }
-        }
-
-        // 动态扫描themes文件夹中的主题文件
-        async function scanThemes() {
-            try {
-                // 尝试获取themes文件夹的文件列表
-                const response = await fetch('themes/');
-                const text = await response.text();
-                
-                // 解析HTML响应，提取.css文件（排除base.css）
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const links = doc.querySelectorAll('a[href$=".css"]');
-                
-                availableThemes = [];
-                links.forEach(link => {
-                    const filename = link.getAttribute('href');
-                    if (filename && filename !== 'base.css') {
-                        const themeName = filename.replace('.css', '');
-                        availableThemes.push({
-                            name: themeName,
-                            displayName: getThemeDisplayName(themeName)
-                        });
-                    }
-                });
-                
-                // 如果无法通过目录列表获取，使用默认主题列表
-                if (availableThemes.length === 0) {
-                    availableThemes = [
-                        { name: 'default', displayName: '默认' },
-                        { name: 'dark', displayName: '深色' },
-                        { name: 'candy', displayName: '糖果' }
-                    ];
-                }
-                
-                updateThemeSelector();
-            } catch (error) {
-                console.log('无法动态扫描主题，使用默认主题列表');
-                // 使用默认主题列表
-                availableThemes = [
-                    { name: 'default', displayName: '默认' },
-                    { name: 'dark', displayName: '深色' },
-                    { name: 'candy', displayName: '糖果' }
-                ];
-                updateThemeSelector();
-            }
-        }
-
-        // 获取主题显示名称
-        function getThemeDisplayName(themeName) {
-            const displayNames = {
-                'default': '默认',
-                'dark': '深色',
-                'candy': '糖果'
-            };
-            return displayNames[themeName] || themeName.charAt(0).toUpperCase() + themeName.slice(1);
-        }
-
-        // 更新主题选择器
-        function updateThemeSelector() {
-            // 清空现有选项
-            themeSelect.innerHTML = '';
-            
-            // 添加新选项
-            availableThemes.forEach(theme => {
-                const option = document.createElement('option');
-                option.value = theme.name;
-                option.textContent = theme.displayName;
-                themeSelect.appendChild(option);
-            });
-            
-            // 恢复保存的主题选择
-            const savedTheme = localStorage.getItem('selectedTheme') || 'default';
-            if (availableThemes.some(theme => theme.name === savedTheme)) {
-                themeSelect.value = savedTheme;
-                switchTheme(savedTheme);
-            } else {
-                // 如果保存的主题不存在，使用第一个可用主题
-                const firstTheme = availableThemes[0]?.name || 'default';
-                themeSelect.value = firstTheme;
-                switchTheme(firstTheme);
-            }
-        }
-
-        function switchTheme(theme) {
-            currentTheme = theme;
-            themeCss.href = `themes/${theme}.css`;
-            localStorage.setItem('selectedTheme', theme);
-        }
-
-        themeSelect.addEventListener('change', (e) => {
-            switchTheme(e.target.value);
-        });
-
-        // 初始化主题系统
-        async function initializeThemes() {
-            await scanThemes();
-        }
-
-        // 初始加载
-        initializeThemes().then(() => {
-            generateAndRender();
+                mainManager.generateAndRender();
+            }, 100);
         });
     </script>
 </body>

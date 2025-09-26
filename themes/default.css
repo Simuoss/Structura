@@ -17,6 +17,27 @@
     margin: 8px;
 }
 
+/* 嵌套块的样式 */
+.block .block {
+    margin-left: 16px;
+    margin-top: 12px;
+    border-left: 3px solid var(--accent-color, #007acc);
+    border-radius: 4px;
+    background-color: rgba(0, 122, 204, 0.05);
+}
+
+.block .block .block {
+    margin-left: 24px;
+    border-left: 3px solid var(--secondary-color, #28a745);
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.block .block .block .block {
+    margin-left: 32px;
+    border-left: 3px solid var(--tertiary-color, #ffc107);
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
 .block:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);

@@ -81,6 +81,22 @@ body {
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    min-height: 0; /* 允许flex子项收缩 */
+}
+
+.panel-controls h2 {
+    flex-shrink: 0; /* 标题不收缩 */
+}
+
+.panel-controls #input-textarea {
+    flex-shrink: 0; /* textarea不收缩 */
+    min-height: 200px; /* 设置最小高度 */
+}
+
+.panel-controls > div:last-child {
+    flex: 1; /* 语法指南区域占用剩余空间 */
+    overflow-y: auto; /* 允许滚动 */
+    min-height: 0; /* 允许收缩 */
 }
 
 .panel-preview {
@@ -106,7 +122,7 @@ body {
 /* --- 控件样式 --- */
 #input-textarea {
     width: 100%;
-    height: 250px;
+    height: 200px; /* 减少高度，为语法指南留出空间 */
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 8px;
@@ -146,6 +162,65 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow: auto;
+}
+
+/* --- 语法指南样式 --- */
+.syntax-guide {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+.syntax-guide p {
+    margin: 4px 0;
+}
+
+.syntax-guide code {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: #d14;
+}
+
+.syntax-guide details {
+    margin-bottom: 8px;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 8px;
+    background-color: #f8f9fa;
+}
+
+.syntax-guide summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    padding: 4px 0;
+    outline: none;
+}
+
+.syntax-guide summary:hover {
+    color: #0366d6;
+}
+
+.syntax-guide details[open] summary {
+    border-bottom: 1px solid #e1e4e8;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+}
+
+.syntax-guide details > div {
+    margin-top: 8px;
+    padding-left: 16px;
+}
+
+.syntax-guide .syntax-description {
+    margin-bottom: 6px;
+    font-style: italic;
+    color: #888;
 }
 
 /* --- 说明列表样式 --- */
