@@ -8,153 +8,9 @@
 
 ---
 
-[**English**](#-english) | [中文](#-中文)
+[**English**](#-english) | [**中文**](#-中文)
 
 </div>
-
-`<a name="-english"></a>`
-
-## 🇬🇧 English
-
-### 💡 What is Structura?
-
-**Structura** is a simple, Markdown-like diagramming language designed for application architecture diagrams, suitable for both LLMs and humans to read and write. It transforms a simple, human-readable syntax into beautiful, interactive, and freely rearrangeable architecture diagrams.
-
-Traditional diagramming languages like Mermaid or PlantUML are excellent but were designed for humans. While highly versatile, their relatively complex rules and syntax can be challenging for humans to learn. More importantly, current large models cannot fully grasp their syntax. In the age of AI, where writing code is incredibly fast, we shouldn't waste time on drawing diagrams. Therefore, we need a diagramming language with simple rules, perfectly suited for AI generation and rapid human refinement. **Structura was born for this purpose.**
-
-### 🚀 Live Demo & Preview
-
-Check out the interactive builder in action!
-
-**(A GIF should be here, showcasing the tool's core features: typing text on the left, the diagram rendering in real-time, dragging a block to a new position, toggling a container's layout from vertical to horizontal, and the code preview instantly updating.)**
-
-![Example 1](./imgs/example1.png)
-
-### ✨ Core Features
-
-* **🚀 Ultra-Simple Syntax**: Just `#` and `-` symbols - create complex frontend-backend architecture diagrams with only 20 lines of code.
-* **🎯 AI-Friendly**: Syntax designed specifically for Large Language Models to effortlessly generate professional architecture diagrams.
-* **⚡ Real-time Preview**: Type on the left, see results instantly on the right - what you see is what you get.
-* **🎨 Flexible Layouts**: One-click switching between horizontal/vertical layouts, drag-and-drop component positioning.
-* **📱 Rich Components**: 
-    * **Sidebars**: Left and right sidebar support
-    * **Invisible Containers**: Pure layout containers without visible titles
-    * **Multi-line Text**: Support for code blocks and long text
-    * **Markdown**: Embedded Markdown content rendering
-* **💾 One-Click Export**: Generate standalone HTML files for easy sharing.
-
-### 📖 Syntax Guide
-
-Structura's syntax is designed to be simple and intuitive.
-
-#### Basic Structure
-
-| Syntax                         | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| `# Title`                    | Creates a top-level block.                    |
-| `## Title`, `### Title`... | Creates a nested sub-block (up to 10 levels). |
-| `##` (No title)              | Creates an invisible structural container.    |
-| `- List item`                | Creates a simple text item inside a block.    |
-
-
-#### Block Attributes
-
-| Syntax                             | Description                                         |
-| ---------------------------------- | --------------------------------------------------- |
-| `## Title {id=my-id}`            | Sets a custom ID for the block.                     |
-| `## Title:my-id`                 | Sets a custom ID for the block (colon syntax).      |
-| `## Title r:`                    | Applies horizontal layout (syntax sugar, no ID).    |
-| `## Title c:`                    | Applies vertical layout (syntax sugar, no ID).      |
-| `## Title r:my-id`               | Sets ID and applies horizontal layout (syntax sugar). |
-| `## Title c:my-id`               | Sets ID and applies vertical layout (syntax sugar).   |
-| `## Title {style="color: red;"}` | Applies custom CSS styles to the block.             |
-| `## Title {layout=r}`            | Arranges child blocks horizontally.                 |
-| `## Title {layout=c}`            | Arranges child blocks vertically.                   |
-| `## {layout=r}`                  | Creates invisible container with horizontal layout. |
-
-#### Sidebar Syntax
-
-| Syntax    | Description |
-| --------- | ----------- |
-| `##       | Title`      |
-| `## Title | `           |
-
-#### Content Blocks
-
-| Syntax                     | Description                                       |
-| -------------------------- | ------------------------------------------------- |
-| ``text<br>Plain text<br>`` | Creates a plain text block (no Markdown parsing). |
-| ``md<br>**Markdown**<br>`` | Creates a Markdown-rendered content block.        |
-| `<!-- Comment -->`       | Adds a comment (not displayed in output).         |
-
-#### Complete Example
-
-```
-# System Architecture {style="background: #f0f8ff;"}
-
-## Frontend Layer {layout=r}
-### React App {id=react-app}
-- User Interface
-- State Management
-
-### Vue App
-- Component Library
-- Router
-
-## {layout=r}
-### API Gateway
-- Authentication
-- Rate Limiting
-
-### Microservices
-- User Service
-- Order Service
-
-##| Sidebar Content
-This appears as a left sidebar.
-
-## Backend Layer |
-This appears as a right sidebar.
-
-## Database Layer {layout=c}
-
-```text
-Configuration:
-- Host: localhost
-- Port: 5432
-```
-
-```md
-**Important Notes:**
-- Use connection pooling
-- Enable SSL encryption
-```
-
-<!-- This is a comment and won't be displayed -->
-
-
-### 🤔 Why Structura?
-
-While tools like Mermaid are fantastic, they produce static images. Modifying the layout or structure requires rewriting the code. **Structura is different.**
-
-### 🛠️ How to Use
-
-Visit directly: [Structura](http://structura.simuoss.cn)
-
-### 🗺️ Roadmap
-
-Structura is just getting started. Here are some ideas for the future:
-
-- [ ] Theming and custom styling syntax.
-- [ ] Color, border, position, size, shape, and connecting lines.
-- [ ] Support for overlapping blocks.
-- [ ] An Agent that can automatically scope and draw a system architecture diagram based on requirements.
-
-### 📄 License
-
-This project is licensed under the GNU GPLv3 License. See the [LICENSE](LICENSE) file for details.
-
----
 
 <a name="-中文"></a>
 
@@ -478,4 +334,17 @@ Structura 才刚刚起步。以下是一些对未来的构想：
 ### 📄 开源许可
 
 本项目采用 GNU3.0 许可证。有关详细信息，请参阅 [LICENSE](LICENSE) 文件。
-```
+
+
+---
+`<a name="-english"></a>`
+
+## 🇬🇧 English
+
+### 💡 What is Structura?
+
+**Structura** is a simple, Markdown-like diagramming language designed for application architecture diagrams, suitable for both LLMs and humans to read and write. It transforms a simple, human-readable syntax into beautiful, interactive, and freely rearrangeable architecture diagrams.
+
+Traditional diagramming languages like Mermaid or PlantUML are excellent but were designed for humans. While highly versatile, their relatively complex rules and syntax can be challenging for humans to learn. More importantly, current large models cannot fully grasp their syntax. In the age of AI, where writing code is incredibly fast, we shouldn't waste time on drawing diagrams. Therefore, we need a diagramming language with simple rules, perfectly suited for AI generation and rapid human refinement. **Structura was born for this purpose.**
+
+more info comming soon...

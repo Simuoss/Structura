@@ -9,7 +9,7 @@ class MainManager {
         this.themeCache = {};
         
         // DOM 元素引用
-        this.textInput = null;
+        this.inputTextArea = null;
         this.generateBtn = null;
         this.exportBtn = null;
         this.codePreview = null;
@@ -23,6 +23,132 @@ class MainManager {
         this.astParser = null;
         this.renderer = null;
         this.configManager = null;
+        
+        // 持久化存储键名
+        this.storageKeys = {
+            inputContent: 'structura_input_content',
+            settings: 'structura_settings'
+        };
+    }
+
+    /**
+     * 加载输入内容
+     */
+    async loadInputContent() {
+        const savedInput = this.loadInput();
+        if (savedInput && savedInput.trim()) {
+            this.inputTextArea.value = savedInput;
+        } else {
+            // 如果没有保存的输入内容或内容为空，加载默认模板
+            await this.loadDefaultTemplate();
+        }
+    }
+    
+    /**
+     * 加载默认模板
+     */
+    async loadDefaultTemplate() {
+        try {
+            const response = await fetch('./template/full.js');
+            const templateContent = await response.text();
+            // 提取模板内容（去掉可能的export语句等）
+            const match = templateContent.match(/`([^`]+)`/);
+            if (match) {
+                this.inputTextArea.value = match[1];
+            } else {
+                // 如果模板格式不对，使用备用默认内容
+                this.inputTextArea.value = `# 前端层{layout=r}
+## 用户界面
+- 登录页面
+- 主页面
+- 设置页面
+
+## 组件库
+- 按钮组件
+- 表单组件
+- 图表组件`;
+            }
+        } catch (error) {
+            console.warn('无法加载默认模板，使用内置默认内容:', error);
+            this.inputTextArea.value = `# 前端层{layout=r}
+## 用户界面
+- 登录页面
+- 主页面
+- 设置页面
+
+## 组件库
+- 按钮组件
+- 表单组件
+- 图表组件`;
+        }
+    }
+    
+    // 保存数据到localStorage
+    saveToStorage(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+            console.warn('保存到localStorage失败:', error);
+        }
+    }
+    
+    // 从localStorage读取数据
+    loadFromStorage(key, defaultValue = null) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : defaultValue;
+        } catch (error) {
+            console.warn('从localStorage读取失败:', error);
+            return defaultValue;
+        }
+    }
+    
+    // 保存输入内容
+    saveInputContent(content) {
+        this.saveToStorage(this.storageKeys.inputContent, content);
+    }
+    
+    // 保存当前输入框内容
+    saveInput() {
+        if (this.inputTextArea) {
+            this.saveInputContent(this.inputTextArea.value);
+        }
+    }
+    
+    // 加载输入内容
+    async loadInputContent() {
+        const savedInput = this.loadFromStorage(this.storageKeys.inputContent, '');
+        if (savedInput && savedInput.trim()) {
+            this.inputTextArea.value = savedInput;
+        } else {
+            // 如果没有保存的输入内容或内容为空，加载默认模板
+            await this.loadDefaultTemplate();
+        }
+    }
+    
+    // 保存设置
+    saveSettings(settings) {
+        this.saveToStorage(this.storageKeys.settings, settings);
+    }
+    
+    // 加载设置
+    loadSettings() {
+        return this.loadFromStorage(this.storageKeys.settings, {});
+    }
+    
+    // 重置设置（不重置输入内容）
+    resetSettings() {
+        localStorage.removeItem(this.storageKeys.settings);
+        // 重新初始化配置管理器
+        if (this.configManager) {
+            this.configManager.resetToDefaults();
+        }
+        // 重置主题
+        this.currentTheme = 'default';
+        if (this.themeSelect) {
+            this.themeSelect.value = 'default';
+            this.switchTheme('default');
+        }
     }
 
     /**
@@ -32,6 +158,14 @@ class MainManager {
         this.initializeDOMElements();
         this.bindEvents();
         await this.initializeThemes();
+        
+        // 加载输入内容
+        await this.loadInputContent();
+        
+        // 初始化配置管理器
+        this.configManager = new ConfigManager(this);
+        await this.configManager.initialize();
+        
         this.generateAndRender();
     }
 
@@ -39,9 +173,10 @@ class MainManager {
      * 初始化DOM元素引用
      */
     initializeDOMElements() {
-        this.textInput = document.getElementById('input-textarea');
+        this.inputTextArea = document.getElementById('input-textarea');
         this.generateBtn = document.getElementById('generate-btn');
         this.exportBtn = document.getElementById('export-btn');
+        this.resetSettingsBtn = document.getElementById('reset-settings-btn');
         this.codePreview = document.getElementById('code-preview');
         this.diagramOutput = document.getElementById('diagram-output');
         this.themeSelect = document.getElementById('theme-select');
@@ -54,19 +189,45 @@ class MainManager {
      * 绑定事件监听器
      */
     bindEvents() {
-        this.generateBtn.addEventListener('click', () => this.generateAndRender());
-        this.exportBtn.addEventListener('click', () => this.exportHTML());
-        this.themeSelect.addEventListener('change', (e) => this.switchTheme(e.target.value));
+        // 绑定按钮事件
+        if (this.generateBtn) {
+            this.generateBtn.addEventListener('click', () => this.generateAndRender());
+        }
+        if (this.exportBtn) {
+            this.exportBtn.addEventListener('click', () => this.exportHTML());
+        }
+        if (this.resetSettingsBtn) {
+            this.resetSettingsBtn.addEventListener('click', () => this.resetSettings());
+        }
+        
+        // 绑定输入框自动保存事件
+        if (this.inputTextArea) {
+            this.inputTextArea.addEventListener('input', () => this.saveInput());
+        }
+        
+        if (this.themeSelect) {
+            this.themeSelect.addEventListener('change', (e) => this.switchTheme(e.target.value));
+        }
         
         // 结构层布局按钮显示控制
-        this.showStructureTogglesCheckbox.addEventListener('change', (e) => {
-            this.toggleStructureLayoutButtons(e.target.checked);
-        });
-
+        if (this.showStructureTogglesCheckbox) {
+            this.showStructureTogglesCheckbox.addEventListener('change', (e) => {
+                this.toggleStructureLayoutButtons(e.target.checked);
+                if (this.configManager) {
+                    this.configManager.saveSettings();
+                }
+            });
+        }
+        
         // 轮廓线显示控制
-        this.hideOutlinesCheckbox.addEventListener('change', (e) => {
-            this.toggleOutlines(e.target.checked);
-        });
+        if (this.hideOutlinesCheckbox) {
+            this.hideOutlinesCheckbox.addEventListener('change', (e) => {
+                this.toggleOutlines(e.target.checked);
+                if (this.configManager) {
+                    this.configManager.saveSettings();
+                }
+            });
+        }
     }
 
     /**
@@ -82,7 +243,7 @@ class MainManager {
      * 生成并渲染图表
      */
     async generateAndRender() {
-        const text = this.textInput.value;
+        const text = this.inputTextArea.value;
         const ast = this.astParser.parse(text);
         this.renderer.renderDiagram(ast);
         

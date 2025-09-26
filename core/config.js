@@ -1,6 +1,8 @@
 // 外观配置模块
 class ConfigManager {
-    constructor() {
+    constructor(mainManager = null) {
+        this.mainManager = mainManager;
+        
         this.fontList = [
             { name: '系统默认', value: 'system', family: '' },
             { name: '[衬线] Georgia', value: 'georgia', family: 'Georgia, serif' },
@@ -25,6 +27,20 @@ class ConfigManager {
         this.fontFamilySelect = null;
         this.fontSizeSelect = null;
         this.diagramOutput = null;
+        
+        // 默认设置
+        this.defaultSettings = {
+            theme: 'default',
+            fontFamily: 'system',
+            fontSize: 14,
+            globalSpacing: 1.0,
+            paddingMultiplier: 1.0,
+            marginMultiplier: 1.0,
+            borderMultiplier: 1.0,
+            borderRadiusMultiplier: 1.0,
+            showStructureToggles: false,
+            hideOutlines: false
+        };
         
         this.init();
     }
@@ -58,8 +74,115 @@ class ConfigManager {
         // 绑定事件监听器
         this.bindEvents();
         
+        // 加载保存的设置
+        this.loadSettings();
+        
         // 初始化倍数控制
         this.updateSpacingValues();
+    }
+    
+    // 从主管理器加载设置
+    loadSettings() {
+        if (!this.mainManager) return;
+        
+        const savedSettings = this.mainManager.loadSettings();
+        const settings = { ...this.defaultSettings, ...savedSettings };
+        
+        // 应用设置到UI
+        this.applySettingsToUI(settings);
+        
+        // 应用设置到显示
+        this.applySettings(settings);
+    }
+    
+    // 保存设置到主管理器
+    saveSettings() {
+        if (!this.mainManager) return;
+        
+        const settings = this.getCurrentSettings();
+        this.mainManager.saveSettings(settings);
+    }
+    
+    // 获取当前设置
+    getCurrentSettings() {
+        return {
+            theme: this.mainManager ? this.mainManager.currentTheme : this.defaultSettings.theme,
+            fontFamily: this.fontFamilySelect ? this.fontFamilySelect.value : this.defaultSettings.fontFamily,
+            fontSize: this.fontSizeSelect ? parseInt(this.fontSizeSelect.value) : this.defaultSettings.fontSize,
+            globalSpacing: this.spacingControls.global ? parseFloat(this.spacingControls.global.value) : this.defaultSettings.globalSpacing,
+            paddingMultiplier: this.spacingControls.padding ? parseFloat(this.spacingControls.padding.value) : this.defaultSettings.paddingMultiplier,
+            marginMultiplier: this.spacingControls.margin ? parseFloat(this.spacingControls.margin.value) : this.defaultSettings.marginMultiplier,
+            borderMultiplier: this.spacingControls.border ? parseFloat(this.spacingControls.border.value) : this.defaultSettings.borderMultiplier,
+            borderRadiusMultiplier: this.spacingControls.borderRadius ? parseFloat(this.spacingControls.borderRadius.value) : this.defaultSettings.borderRadiusMultiplier,
+            showStructureToggles: this.mainManager && this.mainManager.showStructureTogglesCheckbox ? this.mainManager.showStructureTogglesCheckbox.checked : this.defaultSettings.showStructureToggles,
+            hideOutlines: this.mainManager && this.mainManager.hideOutlinesCheckbox ? this.mainManager.hideOutlinesCheckbox.checked : this.defaultSettings.hideOutlines
+        };
+    }
+    
+    // 应用设置到UI
+    applySettingsToUI(settings) {
+        if (this.fontFamilySelect) {
+            this.fontFamilySelect.value = settings.fontFamily;
+        }
+        if (this.fontSizeSelect) {
+            this.fontSizeSelect.value = settings.fontSize;
+        }
+        if (this.spacingControls.global) {
+            this.spacingControls.global.value = settings.globalSpacing;
+        }
+        if (this.spacingControls.padding) {
+            this.spacingControls.padding.value = settings.paddingMultiplier;
+        }
+        if (this.spacingControls.margin) {
+            this.spacingControls.margin.value = settings.marginMultiplier;
+        }
+        if (this.spacingControls.border) {
+            this.spacingControls.border.value = settings.borderMultiplier;
+        }
+        if (this.spacingControls.borderRadius) {
+            this.spacingControls.borderRadius.value = settings.borderRadiusMultiplier;
+        }
+        if (this.mainManager && this.mainManager.showStructureTogglesCheckbox) {
+            this.mainManager.showStructureTogglesCheckbox.checked = settings.showStructureToggles;
+        }
+        if (this.mainManager && this.mainManager.hideOutlinesCheckbox) {
+            this.mainManager.hideOutlinesCheckbox.checked = settings.hideOutlines;
+        }
+        if (this.mainManager && this.mainManager.themeSelect) {
+            this.mainManager.themeSelect.value = settings.theme;
+        }
+    }
+    
+    // 应用设置到显示
+    applySettings(settings) {
+        // 应用字体设置
+        this.updateFontSettings();
+        
+        // 应用间距设置
+        this.updateSpacingValues();
+        this.applySpacingMultipliers();
+        
+        // 应用主题设置
+        if (this.mainManager && settings.theme !== this.mainManager.currentTheme) {
+            this.mainManager.switchTheme(settings.theme);
+        }
+        
+        // 应用结构层显示设置
+        if (this.mainManager && this.mainManager.toggleStructureLayoutButtons) {
+            this.mainManager.toggleStructureLayoutButtons(settings.showStructureToggles);
+        }
+        
+        // 应用轮廓线设置
+        if (this.mainManager && this.mainManager.toggleOutlines) {
+            this.mainManager.toggleOutlines(settings.hideOutlines);
+        }
+    }
+    
+    // 重置到默认设置
+    resetToDefaults() {
+        this.applySettingsToUI(this.defaultSettings);
+        this.applySettings(this.defaultSettings);
+        this.saveSettings();
     }
     
     // 动态生成字体选项
@@ -167,25 +290,32 @@ class ConfigManager {
     }
     
     // 绑定事件监听器
-    bindEvents() {
-        // 字体设置事件
-        if (this.fontFamilySelect) {
-            this.fontFamilySelect.addEventListener('change', () => this.updateFontSettings());
-        }
-        if (this.fontSizeSelect) {
-            this.fontSizeSelect.addEventListener('change', () => this.updateFontSettings());
-        }
-        
-        // 倍数控制事件
-        Object.values(this.spacingControls).forEach(control => {
-            if (control) {
-                control.addEventListener('input', () => {
-                    this.updateSpacingValues();
-                    this.applySpacingMultipliers();
-                });
-            }
-        });
-    }
+     bindEvents() {
+         // 字体设置事件
+         if (this.fontFamilySelect) {
+             this.fontFamilySelect.addEventListener('change', () => {
+                 this.updateFontSettings();
+                 this.saveSettings();
+             });
+         }
+         if (this.fontSizeSelect) {
+             this.fontSizeSelect.addEventListener('change', () => {
+                 this.updateFontSettings();
+                 this.saveSettings();
+             });
+         }
+         
+         // 倍数控制事件
+         Object.values(this.spacingControls).forEach(control => {
+             if (control) {
+                 control.addEventListener('input', () => {
+                     this.updateSpacingValues();
+                     this.applySpacingMultipliers();
+                     this.saveSettings();
+                 });
+             }
+         });
+     }
     
     // 初始化方法，保持与其他管理器的一致性
     async initialize() {

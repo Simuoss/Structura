@@ -1,0 +1,43 @@
+<svg width="200" height="200" viewBox="-20 -20 240 240" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="logo-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur" />
+            <feFlood flood-color="#2ECC71" flood-opacity="0.8" result="glow-color"/>
+            <feComposite in="glow-color" in2="blur" operator="in" result="soft-glow" />
+            <feMerge>
+                <feMergeNode in="soft-glow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <rect 
+        x="0" 
+        y="0" 
+        width="200" 
+        height="200" 
+        rx="45" 
+        fill="#2ECC71" 
+        filter="url(#logo-glow)" 
+    />
+
+    <rect 
+        x="40" 
+        y="40" 
+        width="120" 
+        height="45" 
+        rx="15" 
+        fill="#FFFFFF"
+        fill-opacity="0.3"
+    />
+
+    <rect 
+        x="40" 
+        y="115" 
+        width="120" 
+        height="45" 
+        rx="15" 
+        fill="#F1C40F" 
+        transform="rotate(-10 100 137.5)"
+    />
+</svg>
