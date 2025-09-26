@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式架构图生成器</title>
+    <!-- 引入 SortableJS 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- 引入 Marked.js 用于解析Markdown -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <style>
+        :root {
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #f4f7f9;
+            --panel-bg: #ffffff;
+            --border-color: #dee5e9;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --text-color: #2c3e50;
+            --title-color: #34495e;
+            --button-bg: #3498db;
+            --button-hover-bg: #2980b9;
+            --code-bg: #2d2d2d;
+            --code-color: #f2f2f2;
+            --spacing: 16px;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- 主布局 --- */
+        .main-header {
+            padding: var(--spacing);
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            text-align: center;
+            z-index: 10;
+        }
+        .main-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--title-color);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            padding: var(--spacing);
+            overflow: auto;
+            background-color: var(--panel-bg);
+        }
+
+        .panel-controls {
+            width: 380px; /* Increased width for new instructions */
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-preview {
+            flex: 2;
+            background-color: #e9edf0;
+        }
+
+        .panel-code {
+            flex: 1;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--title-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        /* --- 控件样式 --- */
+        #input-textarea {
+            width: 100%;
+            height: 250px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: var(--spacing);
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .button:hover { background-color: var(--button-hover-bg); }
+
+        /* --- 代码预览 --- */
+        #code-preview {
+            flex: 1;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: var(--spacing);
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: auto;
+        }
+
+        /* --- 生成的图表样式 --- */
+        #diagram-output { padding: var(--spacing); }
+
+        .block {
+            border: 1px solid;
+            border-radius: var(--radius);
+            background-color: var(--panel-bg);
+            padding: 12px;
+            position: relative;
+            transition: box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            cursor: grab;
+            margin: 8px; /* Default margin for blocks */
+        }
+        
+        .block-title { font-weight: 600; margin: 0 0 8px 0; }
+        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
+        .block-items-container p { margin: 0; }
+        .block-container { min-height: 20px; border-radius: var(--radius); }
+        
+        /* Layout modes */
+        .layout-vertical { display: flex; flex-direction: column; }
+        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
+        .layout-horizontal > .block { flex: 1; }
+
+        /* SortableJS helper classes */
+        .sortable-ghost { opacity: 0.4; background: #c8ebfb; }
+        .sortable-drag { opacity: 0.9; transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.2); cursor: grabbing; }
+
+        /* Sidebar layout styles */
+        .block-content-wrapper { display: flex; align-items: stretch; gap: var(--spacing); }
+        .block-main-content { flex: 1; min-width: 0; }
+        .block-sidebar { flex: 0 0 240px; }
+        
+        /* NEW: Structure-only layer */
+        .structure-only-block {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            cursor: default !important;
+        }
+        .structure-only-block > .block-container {
+            min-height: 0;
+        }
+
+        /* NEW: Content block styles */
+        .markdown-content { text-align: left; }
+        .markdown-content > *:first-child { margin-top: 0; }
+        .markdown-content > *:last-child { margin-bottom: 0; }
+        .text-content {
+            white-space: pre;
+            text-align: left;
+            background-color: #f8f8f8;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0;
+        }
+
+        /* Level-based styles */
+        [data-level='1'] { border-color: #7f8c8d; } [data-level='1'] > .block-title { font-size: 1.4em; color: #2c3e50; }
+        [data-level='2'] { border-color: #95a5a6; background-color: #fcfcfc; } [data-level='2'] > .block-title { font-size: 1.2em; color: #34495e; }
+        [data-level='3'] { border-color: #bdc3c7; background-color: #ffffff; } [data-level='3'] > .block-title { font-size: 1.1em; }
+        [data-level='4'] { border-color: #ecf0f1; background-color: #fafafa; } [data-level='4'] > .block-title { font-size: 1em; }
+        
+        /* Layout toggle button */
+        .layout-toggle { position: absolute; top: 8px; right: 8px; cursor: pointer; padding: 4px; border-radius: 4px; background-color: rgba(0,0,0,0.05); line-height: 0; z-index: 5; }
+        .layout-toggle:hover { background-color: rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>交互式架构图生成器</h1>
+    </header>
+    <main class="main-container">
+        <div class="panel panel-controls">
+            <h2>1. 输入结构</h2>
+            <textarea id="input-textarea" placeholder="使用 # 定义层级, - 定义项目..."></textarea>
+            
+            <h2>2. 操作</h2>
+            <button class="button" id="generate-btn">生成 / 更新图表</button>
+            <button class="button" id="export-btn">导出HTML文件</button>
+
+            <h2>说明</h2>
+            <ul style="font-size: 14px; padding-left: 20px;">
+                <li><strong># 标题</strong>: 定义一个块。</li>
+                <li><strong>##</strong> (无标题): 定义一个不可见的结构层。</li>
+                <li><strong>|## 标题</strong>: 定义左侧边栏。</li>
+                <li><strong>##| 标题</strong>: 定义右侧边栏。</li>
+                <li><strong>- item</strong>: 定义一个列表项。</li>
+                <li><strong>- - item</strong>: 显示一个带'-'的列表项。</li>
+                <li><strong>- ``` ... ```</strong>: 定义普通文本块。</li>
+                <li><strong>- ```md ... ```</strong>: 定义Markdown块。</li>
+                <li><strong>拖拽</strong>: 在同级容器内拖拽块进行排序。</li>
+                <li><strong>右上角按钮</strong>: 切换子块布局。</li>
+            </ul>
+        </div>
+        <div class="panel panel-preview">
+            <h2>3. 交互式预览</h2>
+            <div id="diagram-output"></div>
+        </div>
+        <div class="panel panel-code">
+            <h2>4. 生成的代码</h2>
+            <pre id="code-preview"><code>点击“生成”按钮以显示代码...</code></pre>
+        </div>
+    </main>
+
+    <script>
+        const inputTextArea = document.getElementById('input-textarea');
+        const generateBtn = document.getElementById('generate-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const diagramOutput = document.getElementById('diagram-output');
+        const codePreview = document.querySelector('#code-preview code');
+
+        // 默认输入内容示例
+        inputTextArea.value = `# 示例层
+##| 功能演示
+### Markdown
+- \`\`\`md
+# H1 标题
+- 列表项 1
+- **粗体** and *斜体*
+\`\`\`
+### 普通文本
+- \`\`\`
+此内容保留换行和缩进。
+  line 2
+line 3
+\`\`\`
+### 结构层示例
+- 使用无标题的'##'来创建横向组
+
+## 主内容区
+### 普通块
+- 普通列表项
+- - 以'-'开头的列表项
+##
+### 横向组块 A
+- 内容A
+### 横向组块 B
+- 内容B`;
+
+        function parseText(text) {
+            const lines = text.split('\n');
+            const root = { level: 0, children: [] };
+            const path = [root];
+            let i = 0;
+
+            while (i < lines.length) {
+                let line = lines[i];
+
+                if (line.trim() === '') {
+                    i++;
+                    continue;
+                }
+                
+                const headingMatch = line.match(/^(#+)\s*(.*)/);
+                
+                if (headingMatch) {
+                    const level = headingMatch[1].length;
+                    let title = headingMatch[2].trim();
+                    let sidebar = 'none';
+                    let isStructureOnly = false;
+
+                    if (title.startsWith('|')) {
+                        sidebar = 'left';
+                        title = title.substring(1).trim();
+                    } else if (title.endsWith('|')) {
+                        sidebar = 'right';
+                        title = title.slice(0, -1).trim();
+                    }
+
+                    if (title.trim() === '') {
+                        isStructureOnly = true;
+                    }
+                    
+                    const node = { level, title, items: [], children: [], sidebar, isStructureOnly };
+                    while (path.length > level) path.pop();
+                    path[path.length - 1].children.push(node);
+                    path.push(node);
+                    i++;
+                } else if (line.trim().startsWith('-')) {
+                    const currentParent = path[path.length - 1];
+                    if (!currentParent) { i++; continue; }
+
+                    const trimmedLine = line.trim();
+
+                    if (trimmedLine.startsWith('- ```md')) {
+                        let content = [];
+                        i++;
+                        while (i < lines.length && !lines[i].trim().startsWith('```')) {
+                            content.push(lines[i]);
+                            i++;
+                        }
+                        currentParent.items.push({ type: 'markdown', content: content.join('\n') });
+                        if (i < lines.length) i++; // Skip the closing ```
+                    } 
+                    else if (trimmedLine.startsWith('- ```')) {
+                        let content = [];
+                        i++;
+                        while (i < lines.length && !lines[i].trim().startsWith('```')) {
+                            content.push(lines[i]);
+                            i++;
+                        }
+                        currentParent.items.push({ type: 'text', content: content.join('\n') });
+                        if (i < lines.length) i++; // Skip the closing ```
+                    }
+                    else {
+                        let content = trimmedLine.substring(1).trim();
+                        if (content.startsWith('-')) {
+                            content = content.substring(1).trim();
+                            currentParent.items.push({ type: 'item', content: `- ${content}` });
+                        } else {
+                            currentParent.items.push({ type: 'item', content: content });
+                        }
+                        i++;
+                    }
+                } else {
+                    i++;
+                }
+            }
+            return root.children;
+        }
+        
+        function renderNodeGroup(nodes, parentElement, defaultLayout = null) {
+            if (!nodes || nodes.length === 0) return;
+
+            const container = document.createElement('div');
+            const level = nodes[0].level;
+            container.className = defaultLayout ? `block-container ${defaultLayout}` : level <= 2 ? 'block-container layout-vertical' : 'block-container layout-horizontal';
+            parentElement.appendChild(container);
+
+            nodes.forEach(node => {
+                const block = document.createElement('div');
+                block.className = 'block';
+                if (node.isStructureOnly) {
+                    block.classList.add('structure-only-block');
+                }
+                block.setAttribute('data-level', node.level);
+
+                if (!node.isStructureOnly) {
+                    const title = document.createElement('h3');
+                    title.className = 'block-title';
+                    title.textContent = node.title;
+                    block.appendChild(title);
+                }
+
+                if (node.items.length > 0) {
+                    const itemsContainer = document.createElement('div');
+                    itemsContainer.className = 'block-items-container';
+                    node.items.forEach(item => {
+                        if (item.type === 'markdown') {
+                            const mdDiv = document.createElement('div');
+                            mdDiv.className = 'markdown-content';
+                            mdDiv.innerHTML = marked.parse(item.content);
+                            itemsContainer.appendChild(mdDiv);
+                        } else if (item.type === 'text') {
+                            const pre = document.createElement('pre');
+                            pre.className = 'text-content';
+                            pre.textContent = item.content;
+                            itemsContainer.appendChild(pre);
+                        } else {
+                            const p = document.createElement('p');
+                            p.textContent = item.content;
+                            itemsContainer.appendChild(p);
+                        }
+                    });
+                    block.appendChild(itemsContainer);
+                }
+
+                if (node.children.length > 0) {
+                    if (!node.isStructureOnly) {
+                        const layoutToggle = document.createElement('div');
+                        layoutToggle.className = 'layout-toggle';
+                        layoutToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`;
+                        layoutToggle.title = "切换布局";
+                        block.appendChild(layoutToggle);
+                    }
+                    renderDiagram(node.children, block);
+                }
+                container.appendChild(block);
+            });
+        }
+        
+        function renderDiagram(nodes, parentElement) {
+            if (!nodes || nodes.length === 0) return;
+
+            const sidebarLeftNodes = nodes.filter(n => n.sidebar === 'left');
+            const sidebarRightNodes = nodes.filter(n => n.sidebar === 'right');
+            const mainNodes = nodes.filter(n => n.sidebar === 'none');
+            const hasSidebar = sidebarLeftNodes.length > 0 || sidebarRightNodes.length > 0;
+
+            let targetParentElement = parentElement;
+
+            if (hasSidebar) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'block-content-wrapper';
+                
+                if (sidebarLeftNodes.length > 0) {
+                    const sidebarEl = document.createElement('div');
+                    sidebarEl.className = 'block-sidebar';
+                    renderNodeGroup(sidebarLeftNodes, sidebarEl, 'layout-vertical');
+                    wrapper.appendChild(sidebarEl);
+                }
+
+                const mainContentEl = document.createElement('div');
+                mainContentEl.className = 'block-main-content';
+                wrapper.appendChild(mainContentEl);
+                targetParentElement = mainContentEl;
+
+                if (sidebarRightNodes.length > 0) {
+                     const sidebarEl = document.createElement('div');
+                    sidebarEl.className = 'block-sidebar';
+                    renderNodeGroup(sidebarRightNodes, sidebarEl, 'layout-vertical');
+                    wrapper.appendChild(sidebarEl);
+                }
+                parentElement.appendChild(wrapper);
+            }
+            renderNodeGroup(mainNodes, targetParentElement);
+        }
+
+        function generateAndRender() {
+            const text = inputTextArea.value;
+            const tree = parseText(text);
+            diagramOutput.innerHTML = '';
+            renderDiagram(tree, diagramOutput);
+            setupSortable();
+            setupLayoutToggles();
+            updateCodePreview();
+        }
+
+        function setupSortable() {
+            document.querySelectorAll('.block-container').forEach(container => {
+                new Sortable(container, {
+                    group: 'nested', animation: 150, ghostClass: 'sortable-ghost',
+                    dragClass: 'sortable-drag', fallbackOnBody: true, swapThreshold: 0.65,
+                    onEnd: () => updateCodePreview(),
+                });
+            });
+        }
+        
+        function setupLayoutToggles() {
+            document.querySelectorAll('.layout-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const container = toggle.closest('.block').querySelector('.block-container');
+                    if (!container) return;
+
+                    const isHorizontal = container.classList.contains('layout-horizontal');
+                    container.classList.toggle('layout-horizontal', !isHorizontal);
+                    container.classList.toggle('layout-vertical', isHorizontal);
+                    
+                    toggle.innerHTML = isHorizontal 
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>`;
+
+                    updateCodePreview();
+                });
+            });
+        }
+
+        function getDiagramCSS() {
+            return `
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #f4f7f9; }
+        .block { border: 1px solid; border-radius: 8px; background-color: #fff; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin: 8px; }
+        .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        .block-title { font-weight: 600; margin: 0 0 8px 0; }
+        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
+        .block-items-container p { margin: 0; }
+        .markdown-content > *:first-child { margin-top: 0; } .markdown-content > *:last-child { margin-bottom: 0; }
+        .text-content { white-space: pre; font-family: monospace; background-color: #f8f8f8; padding: 8px; border-radius: 4px; margin: 0;}
+        .block-container { min-height: 20px; }
+        .layout-vertical { display: flex; flex-direction: column; }
+        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
+        .layout-horizontal > .block { flex: 1; }
+        .block-content-wrapper { display: flex; align-items: stretch; gap: 16px; }
+        .block-main-content { flex: 1; min-width: 0; }
+        .block-sidebar { flex: 0 0 240px; }
+        [data-level='1'] { border-color: #7f8c8d; } [data-level='1'] > .block-title { font-size: 1.4em; }
+        [data-level='2'] { border-color: #95a5a6; } [data-level='2'] > .block-title { font-size: 1.2em; }
+        [data-level='3'] { border-color: #bdc3c7; } [data-level='3'] > .block-title { font-size: 1.1em; }
+        [data-level='4'] { border-color: #ecf0f1; }
+            `.trim().replace(/\n\s+/g, '\n');
+        }
+
+        function updateCodePreview() {
+            const clone = diagramOutput.cloneNode(true);
+            clone.querySelectorAll('.layout-toggle').forEach(el => el.remove());
+            const htmlContent = clone.innerHTML;
+            
+            const fullHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>架构图</title>
+    <style>
+        ${getDiagramCSS()}
+    </style>
+</head>
+<body>
+    ${htmlContent}
+</body>
+</html>`;
+            codePreview.textContent = fullHtml;
+        }
+        
+        function exportHTML() {
+            const blob = new Blob([codePreview.textContent], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'architecture-diagram.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        generateBtn.addEventListener('click', generateAndRender);
+        exportBtn.addEventListener('click', exportHTML);
+
+        // 初始加载
+        generateAndRender();
+    </script>
+</body>
+</html>
+
