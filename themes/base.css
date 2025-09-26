@@ -176,3 +176,27 @@ ul li {
     opacity: 1;
     transform: scale(1.1);
 }
+
+/* --- 结构层可见状态样式 --- */
+.structure-only-block.show-structure {
+    border: 2px dashed #ccc !important;
+    background: rgba(248, 249, 250, 0.5) !important;
+    padding: 12px !important;
+    margin: 8px 0 !important;
+    min-height: 40px !important;
+    position: relative !important;
+    border-radius: 6px !important;
+}
+
+.structure-only-block.show-structure > .block-container {
+    min-height: 20px;
+}
+
+/* --- 轮廓线隐藏样式 --- */
+.hide-outlines .block {
+    border: none !important;
+}
+
+.hide-outlines .sidebar {
+    border: none !important;
+}

@@ -34,18 +34,79 @@
 
             <h2>设置</h2>
             <div style="margin-bottom: 16px;">
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 8px;">
                     <input type="checkbox" id="show-structure-toggles" checked>
                     显示结构层布局按钮
                 </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 8px;">
+                    <input type="checkbox" id="hide-outlines">
+                    不显示轮廓线
+                </label>
+                <div style="margin-bottom: 8px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 4px;">字体和字号设置:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="font-family" style="flex: 2; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                            <!-- 字体选项将通过JavaScript动态生成 -->
+                        </select>
+                        <select id="font-size" style="flex: 1; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="12">12px</option>
+                            <option value="14" selected>14px</option>
+                            <option value="16">16px</option>
+                            <option value="18">18px</option>
+                            <option value="20">20px</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 4px;">全局边距倍数:</label>
+                    <input type="range" id="global-spacing" min="0.5" max="3" step="0.1" value="1" style="width: 100%;">
+                    <div style="text-align: center; font-size: 12px; color: #666; margin-top: 2px;">
+                        <span id="global-spacing-value">1.0</span>x
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <label style="display: block; font-size: 14px; margin-bottom: 4px;">分项倍数设置:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 2px;">内边距:</label>
+                            <input type="range" id="padding-multiplier" min="0.5" max="3" step="0.1" value="1" style="width: 100%;">
+                            <div style="text-align: center; color: #666;">
+                                <span id="padding-value">1.0</span>x
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 2px;">外边距:</label>
+                            <input type="range" id="margin-multiplier" min="0.5" max="3" step="0.1" value="1" style="width: 100%;">
+                            <div style="text-align: center; color: #666;">
+                                <span id="margin-value">1.0</span>x
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 2px;">边框:</label>
+                            <input type="range" id="border-multiplier" min="0.5" max="3" step="0.1" value="1" style="width: 100%;">
+                            <div style="text-align: center; color: #666;">
+                                <span id="border-value">1.0</span>x
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 2px;">圆角:</label>
+                            <input type="range" id="border-radius-multiplier" min="0" max="3" step="0.1" value="1" style="width: 100%;">
+                            <div style="text-align: center; color: #666;">
+                                <span id="border-radius-value">1.0</span>x
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <h2>说明</h2>
             <ul style="font-size: 14px; padding-left: 20px;">
                 <li><strong># 标题</strong>: 定义一个块。</li>
                 <li><strong>##</strong> (无标题): 定义一个不可见的结构层。</li>
-                <li><strong>|## 标题</strong>: 定义左侧边栏。</li>
-                <li><strong>##| 标题</strong>: 定义右侧边栏。</li>
+                <li><strong>##| 标题</strong>: 定义左侧边栏。</li>
+                <li><strong>## 标题|</strong>: 定义右侧边栏。</li>
                 <li><strong>- item</strong>: 定义一个列表项。</li>
                 <li><strong>- - item</strong>: 显示一个带'-'的列表项。</li>
                 <li><strong>- ``` ... ```</strong>: 定义普通文本块。</li>
@@ -234,9 +295,13 @@ line 3
                     layoutToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line></svg>`;
                     layoutToggle.title = "切换布局";
                     
-                    // 如果是结构层且复选框未选中，则隐藏布局按钮
-                    if (node.isStructureOnly && !showStructureTogglesCheckbox.checked) {
-                        layoutToggle.style.display = 'none';
+                    // 如果是结构层，根据复选框状态设置显示和样式
+                    if (node.isStructureOnly) {
+                        if (!showStructureTogglesCheckbox.checked) {
+                            layoutToggle.style.display = 'none';
+                        } else {
+                            block.classList.add('show-structure');
+                        }
                     }
                     
                     block.appendChild(layoutToggle);
@@ -290,6 +355,10 @@ line 3
             renderDiagram(tree, diagramOutput);
             setupSortable();
             setupLayoutToggles();
+            // 应用倍数设置
+            setTimeout(() => {
+                applySpacingMultipliers();
+            }, 100); // 延迟执行确保DOM已完全渲染
             await updateCodePreview();
         }
 
@@ -401,12 +470,190 @@ line 3
                 if (layoutToggle) {
                     layoutToggle.style.display = show ? 'block' : 'none';
                 }
+                
+                // 根据按钮显示状态切换结构层的视觉样式
+                if (show) {
+                    block.classList.add('show-structure');
+                } else {
+                    block.classList.remove('show-structure');
+                }
             });
         }
         
         showStructureTogglesCheckbox.addEventListener('change', (e) => {
             toggleStructureLayoutButtons(e.target.checked);
         });
+
+        // 轮廓线显示控制
+        const hideOutlinesCheckbox = document.getElementById('hide-outlines');
+        
+        function toggleOutlines(hide) {
+            const diagramOutput = document.getElementById('diagram-output');
+            if (hide) {
+                diagramOutput.classList.add('hide-outlines');
+            } else {
+                diagramOutput.classList.remove('hide-outlines');
+            }
+        }
+        
+        hideOutlinesCheckbox.addEventListener('change', (e) => {
+            toggleOutlines(e.target.checked);
+        });
+
+        // 字体列表定义
+        const fontList = [
+            { name: '系统默认', value: 'system', family: '' },
+            { name: '[衬线] Georgia', value: 'georgia', family: 'Georgia, serif' },
+            { name: '[衬线] Times New Roman', value: 'times', family: '"Times New Roman", Times, serif' },
+            { name: '[衬线] Palatino', value: 'palatino', family: '"Palatino Linotype", "Book Antiqua", Palatino, serif' },
+            { name: '[衬线] Garamond', value: 'garamond', family: 'Garamond, serif' },
+            { name: '[无衬线] Arial', value: 'arial', family: 'Arial, sans-serif' },
+            { name: '[无衬线] Helvetica', value: 'helvetica', family: 'Helvetica, Arial, sans-serif' },
+            { name: '[无衬线][中字] Segoe UI', value: 'segoe', family: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' },
+            { name: '[无衬线][中字] Calibri', value: 'calibri', family: 'Calibri, sans-serif' },
+            { name: '[等宽] Courier New', value: 'courier', family: '"Courier New", Courier, monospace' },
+            { name: '[等宽][中字] Consolas', value: 'consolas', family: 'Consolas, "Lucida Console", monospace' },
+            { name: '[等宽] Monaco', value: 'monaco', family: 'Monaco, "Menlo", "Ubuntu Mono", monospace' },
+            { name: '[等宽][中字] Source Code Pro', value: 'source-code', family: '"Source Code Pro", "Courier New", monospace' },
+            { name: '[无衬线][中字] 微软雅黑', value: 'microsoft-yahei', family: '"Microsoft YaHei", "微软雅黑", sans-serif' },
+            { name: '[衬线][中字] 宋体', value: 'simsun', family: 'SimSun, "宋体", serif' },
+            { name: '[等宽][中字] 等距更纱黑体', value: 'sarasa-mono', family: '"Sarasa Mono SC", "等距更纱黑体 SC", monospace' }
+        ];
+
+        // 字体设置控制
+        const fontFamilySelect = document.getElementById('font-family');
+        const fontSizeSelect = document.getElementById('font-size');
+        
+        // 动态生成字体选项
+        function initializeFontOptions() {
+            fontFamilySelect.innerHTML = '';
+            fontList.forEach(font => {
+                const option = document.createElement('option');
+                option.value = font.value;
+                option.textContent = font.name;
+                fontFamilySelect.appendChild(option);
+            });
+        }
+        
+        function updateFontSettings() {
+            const diagramOutput = document.getElementById('diagram-output');
+            const fontValue = fontFamilySelect.value;
+            const fontSize = fontSizeSelect.value;
+            
+            // 找到对应的字体
+            const selectedFont = fontList.find(font => font.value === fontValue);
+            
+            // 直接设置字体族
+            if (selectedFont && selectedFont.family) {
+                diagramOutput.style.fontFamily = selectedFont.family;
+            } else {
+                diagramOutput.style.fontFamily = '';
+            }
+            
+            // 设置字号
+            diagramOutput.style.fontSize = fontSize + 'px';
+        }
+        
+        // 初始化字体选项
+        initializeFontOptions();
+        
+        fontFamilySelect.addEventListener('change', updateFontSettings);
+        fontSizeSelect.addEventListener('change', updateFontSettings);
+
+        // 倍数控制系统
+        const spacingControls = {
+            global: document.getElementById('global-spacing'),
+            padding: document.getElementById('padding-multiplier'),
+            margin: document.getElementById('margin-multiplier'),
+            border: document.getElementById('border-multiplier'),
+            borderRadius: document.getElementById('border-radius-multiplier')
+        };
+        
+        const spacingValues = {
+            globalValue: document.getElementById('global-spacing-value'),
+            paddingValue: document.getElementById('padding-value'),
+            marginValue: document.getElementById('margin-value'),
+            borderValue: document.getElementById('border-value'),
+            borderRadiusValue: document.getElementById('border-radius-value')
+        };
+        
+        // 更新显示值
+        function updateSpacingValues() {
+            spacingValues.globalValue.textContent = parseFloat(spacingControls.global.value).toFixed(1);
+            spacingValues.paddingValue.textContent = parseFloat(spacingControls.padding.value).toFixed(1);
+            spacingValues.marginValue.textContent = parseFloat(spacingControls.margin.value).toFixed(1);
+            spacingValues.borderValue.textContent = parseFloat(spacingControls.border.value).toFixed(1);
+            spacingValues.borderRadiusValue.textContent = parseFloat(spacingControls.borderRadius.value).toFixed(1);
+        }
+        
+        // 应用倍数到样式
+        function applySpacingMultipliers() {
+            const diagramOutput = document.getElementById('diagram-output');
+            const globalMultiplier = parseFloat(spacingControls.global.value);
+            const paddingMultiplier = parseFloat(spacingControls.padding.value);
+            const marginMultiplier = parseFloat(spacingControls.margin.value);
+            const borderMultiplier = parseFloat(spacingControls.border.value);
+            const borderRadiusMultiplier = parseFloat(spacingControls.borderRadius.value);
+            
+            // 设置CSS变量
+            diagramOutput.style.setProperty('--global-spacing-multiplier', globalMultiplier);
+            diagramOutput.style.setProperty('--padding-multiplier', paddingMultiplier);
+            diagramOutput.style.setProperty('--margin-multiplier', marginMultiplier);
+            diagramOutput.style.setProperty('--border-multiplier', borderMultiplier);
+            diagramOutput.style.setProperty('--border-radius-multiplier', borderRadiusMultiplier);
+            
+            // 直接应用到所有相关元素
+            const blocks = diagramOutput.querySelectorAll('.block');
+            const sidebars = diagramOutput.querySelectorAll('.sidebar');
+            
+            [...blocks, ...sidebars].forEach(element => {
+                // 获取原始样式值（如果没有设置过，使用默认值）
+                const computedStyle = window.getComputedStyle(element);
+                
+                // 应用内边距倍数
+                const originalPadding = element.dataset.originalPadding || computedStyle.padding || '8px';
+                if (!element.dataset.originalPadding) {
+                    element.dataset.originalPadding = originalPadding;
+                }
+                const paddingValue = parseFloat(originalPadding) * globalMultiplier * paddingMultiplier;
+                element.style.padding = paddingValue + 'px';
+                
+                // 应用外边距倍数
+                const originalMargin = element.dataset.originalMargin || computedStyle.margin || '4px';
+                if (!element.dataset.originalMargin) {
+                    element.dataset.originalMargin = originalMargin;
+                }
+                const marginValue = parseFloat(originalMargin) * globalMultiplier * marginMultiplier;
+                element.style.margin = marginValue + 'px';
+                
+                // 应用边框倍数
+                const originalBorderWidth = element.dataset.originalBorderWidth || computedStyle.borderWidth || '1px';
+                if (!element.dataset.originalBorderWidth) {
+                    element.dataset.originalBorderWidth = originalBorderWidth;
+                }
+                const borderValue = parseFloat(originalBorderWidth) * globalMultiplier * borderMultiplier;
+                element.style.borderWidth = borderValue + 'px';
+                
+                // 应用圆角倍数
+                const originalBorderRadius = element.dataset.originalBorderRadius || computedStyle.borderRadius || '4px';
+                if (!element.dataset.originalBorderRadius) {
+                    element.dataset.originalBorderRadius = originalBorderRadius;
+                }
+                const borderRadiusValue = parseFloat(originalBorderRadius) * globalMultiplier * borderRadiusMultiplier;
+                element.style.borderRadius = borderRadiusValue + 'px';
+            });
+        }
+        
+        // 绑定事件监听器
+        Object.values(spacingControls).forEach(control => {
+            control.addEventListener('input', () => {
+                updateSpacingValues();
+                applySpacingMultipliers();
+            });
+        });
+        
+        // 初始化倍数控制
+        updateSpacingValues();
 
         // 主题切换功能
         let currentTheme = 'default';
