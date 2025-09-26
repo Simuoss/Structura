@@ -1,0 +1,175 @@
+/* 默认主题 - 预览区样式 */
+
+/* --- 生成的图表样式 --- */
+#diagram-output { 
+    padding: var(--spacing); 
+}
+
+.block {
+    border: 1px solid;
+    border-radius: var(--radius);
+    background-color: var(--panel-bg);
+    padding: 12px;
+    position: relative;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    cursor: grab;
+    margin: 8px;
+}
+
+.block-title { 
+    font-weight: 600; 
+    margin: 0 0 8px 0; 
+}
+
+.block-items-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+}
+
+.block-items-container p { 
+    margin: 0; 
+}
+
+.block-container { 
+    min-height: 20px; 
+    border-radius: var(--radius); 
+}
+
+/* Layout modes */
+.layout-vertical { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.layout-horizontal { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: stretch; 
+}
+
+.layout-horizontal > .block { 
+    flex: 1; 
+}
+
+/* SortableJS helper classes */
+.sortable-ghost { 
+    opacity: 0.4; 
+    background: #c8ebfb; 
+}
+
+.sortable-drag { 
+    opacity: 0.9; 
+    transform: scale(1.02); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+    cursor: grabbing; 
+}
+
+/* Sidebar layout styles */
+.block-content-wrapper { 
+    display: flex; 
+    align-items: stretch; 
+    gap: var(--spacing); 
+}
+
+.block-main-content { 
+    flex: 1; 
+    min-width: 0; 
+}
+
+.block-sidebar { 
+    flex: 0 0 240px; 
+}
+
+/* Structure-only layer */
+.structure-only-block {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: default !important;
+}
+
+.structure-only-block > .block-container {
+    min-height: 0;
+}
+
+/* Content block styles */
+.markdown-content { 
+    text-align: left; 
+}
+
+.markdown-content > *:first-child { 
+    margin-top: 0; 
+}
+
+.markdown-content > *:last-child { 
+    margin-bottom: 0; 
+}
+
+.text-content {
+    white-space: pre;
+    text-align: left;
+    background-color: #f8f8f8;
+    padding: 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    margin: 0;
+}
+
+/* Level-based styles */
+[data-level='1'] { 
+    border-color: #7f8c8d; 
+} 
+
+[data-level='1'] > .block-title { 
+    font-size: 1.4em; 
+    color: #2c3e50; 
+}
+
+[data-level='2'] { 
+    border-color: #95a5a6; 
+    background-color: #fcfcfc; 
+} 
+
+[data-level='2'] > .block-title { 
+    font-size: 1.2em; 
+    color: #34495e; 
+}
+
+[data-level='3'] { 
+    border-color: #bdc3c7; 
+    background-color: #ffffff; 
+} 
+
+[data-level='3'] > .block-title { 
+    font-size: 1.1em; 
+}
+
+[data-level='4'] { 
+    border-color: #ecf0f1; 
+    background-color: #fafafa; 
+} 
+
+[data-level='4'] > .block-title { 
+    font-size: 1em; 
+}
+
+/* Layout toggle button */
+.layout-toggle { 
+    position: absolute; 
+    top: 8px; 
+    right: 8px; 
+    cursor: pointer; 
+    padding: 4px; 
+    border-radius: 4px; 
+    background-color: rgba(0,0,0,0.05); 
+    line-height: 0; 
+    z-index: 5; 
+}
+
+.layout-toggle:hover { 
+    background-color: rgba(0,0,0,0.1); 
+}

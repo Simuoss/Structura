@@ -1,0 +1,208 @@
+/* 深色主题 - 预览区样式 */
+
+/* --- 生成的图表样式 --- */
+#diagram-output { 
+    padding: var(--spacing); 
+}
+
+.block {
+    border: 1px solid;
+    border-radius: var(--radius);
+    background-color: #2c3e50;
+    padding: 12px;
+    position: relative;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    cursor: grab;
+    margin: 8px;
+    color: #ecf0f1;
+}
+
+.block-title { 
+    font-weight: 600; 
+    margin: 0 0 8px 0; 
+    color: #ecf0f1;
+}
+
+.block-items-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+}
+
+.block-items-container p { 
+    margin: 0; 
+    color: #bdc3c7;
+}
+
+.block-container { 
+    min-height: 20px; 
+    border-radius: var(--radius); 
+}
+
+/* Layout modes */
+.layout-vertical { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.layout-horizontal { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: stretch; 
+}
+
+.layout-horizontal > .block { 
+    flex: 1; 
+}
+
+/* SortableJS helper classes */
+.sortable-ghost { 
+    opacity: 0.4; 
+    background: #34495e; 
+}
+
+.sortable-drag { 
+    opacity: 0.9; 
+    transform: scale(1.02); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5); 
+    cursor: grabbing; 
+}
+
+/* Sidebar layout styles */
+.block-content-wrapper { 
+    display: flex; 
+    align-items: stretch; 
+    gap: var(--spacing); 
+}
+
+.block-main-content { 
+    flex: 1; 
+    min-width: 0; 
+}
+
+.block-sidebar { 
+    flex: 0 0 240px; 
+}
+
+/* Structure-only layer */
+.structure-only-block {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: default !important;
+}
+
+.structure-only-block > .block-container {
+    min-height: 0;
+}
+
+/* Content block styles */
+.markdown-content { 
+    text-align: left; 
+    color: #bdc3c7;
+}
+
+.markdown-content > *:first-child { 
+    margin-top: 0; 
+}
+
+.markdown-content > *:last-child { 
+    margin-bottom: 0; 
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    color: #ecf0f1;
+}
+
+.markdown-content strong {
+    color: #e74c3c;
+}
+
+.markdown-content em {
+    color: #f39c12;
+}
+
+.markdown-content code {
+    background-color: #34495e;
+    color: #e74c3c;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.text-content {
+    white-space: pre;
+    text-align: left;
+    background-color: #34495e;
+    color: #ecf0f1;
+    padding: 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    margin: 0;
+}
+
+/* Level-based styles */
+[data-level='1'] { 
+    border-color: #95a5a6; 
+    background-color: #34495e;
+} 
+
+[data-level='1'] > .block-title { 
+    font-size: 1.4em; 
+    color: #ecf0f1; 
+}
+
+[data-level='2'] { 
+    border-color: #7f8c8d; 
+    background-color: #2c3e50; 
+} 
+
+[data-level='2'] > .block-title { 
+    font-size: 1.2em; 
+    color: #bdc3c7; 
+}
+
+[data-level='3'] { 
+    border-color: #5d6d7e; 
+    background-color: #273746; 
+} 
+
+[data-level='3'] > .block-title { 
+    font-size: 1.1em; 
+    color: #aab7b8;
+}
+
+[data-level='4'] { 
+    border-color: #4a5568; 
+    background-color: #1a202c; 
+} 
+
+[data-level='4'] > .block-title { 
+    font-size: 1em; 
+    color: #a0aec0;
+}
+
+/* Layout toggle button */
+.layout-toggle { 
+    position: absolute; 
+    top: 8px; 
+    right: 8px; 
+    cursor: pointer; 
+    padding: 4px; 
+    border-radius: 4px; 
+    background-color: rgba(255,255,255,0.1); 
+    line-height: 0; 
+    z-index: 5; 
+    color: #bdc3c7;
+}
+
+.layout-toggle:hover { 
+    background-color: rgba(255,255,255,0.2); 
+}

@@ -8,206 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <!-- 引入 Marked.js 用于解析Markdown -->
     <script src="https://cdn.bootcdn.net/ajax/libs/marked/12.0.2/marked.min.js"></script>
-    <style>
-        :root {
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --bg-color: #f4f7f9;
-            --panel-bg: #ffffff;
-            --border-color: #dee5e9;
-            --shadow-color: rgba(0, 0, 0, 0.05);
-            --text-color: #2c3e50;
-            --title-color: #34495e;
-            --button-bg: #3498db;
-            --button-hover-bg: #2980b9;
-            --code-bg: #2d2d2d;
-            --code-color: #f2f2f2;
-            --spacing: 16px;
-            --radius: 8px;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* --- 主布局 --- */
-        .main-header {
-            padding: var(--spacing);
-            background: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 4px var(--shadow-color);
-            text-align: center;
-            z-index: 10;
-        }
-        .main-header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: var(--title-color);
-        }
-
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .panel {
-            padding: var(--spacing);
-            overflow: auto;
-            background-color: var(--panel-bg);
-        }
-
-        .panel-controls {
-            width: 380px; /* Increased width for new instructions */
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-preview {
-            flex: 2;
-            background-color: #e9edf0;
-        }
-
-        .panel-code {
-            flex: 1;
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .panel h2 {
-            margin-top: 0;
-            font-size: 18px;
-            color: var(--title-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        /* --- 控件样式 --- */
-        #input-textarea {
-            width: 100%;
-            height: 250px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-
-        .button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin-top: var(--spacing);
-            background-color: var(--button-bg);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .button:hover { background-color: var(--button-hover-bg); }
-
-        /* --- 代码预览 --- */
-        #code-preview {
-            flex: 1;
-            background-color: var(--code-bg);
-            color: var(--code-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: var(--spacing);
-            font-family: monospace;
-            font-size: 13px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: auto;
-        }
-
-        /* --- 生成的图表样式 --- */
-        #diagram-output { padding: var(--spacing); }
-
-        .block {
-            border: 1px solid;
-            border-radius: var(--radius);
-            background-color: var(--panel-bg);
-            padding: 12px;
-            position: relative;
-            transition: box-shadow 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            cursor: grab;
-            margin: 8px; /* Default margin for blocks */
-        }
-        
-        .block-title { font-weight: 600; margin: 0 0 8px 0; }
-        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
-        .block-items-container p { margin: 0; }
-        .block-container { min-height: 20px; border-radius: var(--radius); }
-        
-        /* Layout modes */
-        .layout-vertical { display: flex; flex-direction: column; }
-        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
-        .layout-horizontal > .block { flex: 1; }
-
-        /* SortableJS helper classes */
-        .sortable-ghost { opacity: 0.4; background: #c8ebfb; }
-        .sortable-drag { opacity: 0.9; transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.2); cursor: grabbing; }
-
-        /* Sidebar layout styles */
-        .block-content-wrapper { display: flex; align-items: stretch; gap: var(--spacing); }
-        .block-main-content { flex: 1; min-width: 0; }
-        .block-sidebar { flex: 0 0 240px; }
-        
-        /* NEW: Structure-only layer */
-        .structure-only-block {
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            cursor: default !important;
-        }
-        .structure-only-block > .block-container {
-            min-height: 0;
-        }
-
-        /* NEW: Content block styles */
-        .markdown-content { text-align: left; }
-        .markdown-content > *:first-child { margin-top: 0; }
-        .markdown-content > *:last-child { margin-bottom: 0; }
-        .text-content {
-            white-space: pre;
-            text-align: left;
-            background-color: #f8f8f8;
-            padding: 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            margin: 0;
-        }
-
-        /* Level-based styles */
-        [data-level='1'] { border-color: #7f8c8d; } [data-level='1'] > .block-title { font-size: 1.4em; color: #2c3e50; }
-        [data-level='2'] { border-color: #95a5a6; background-color: #fcfcfc; } [data-level='2'] > .block-title { font-size: 1.2em; color: #34495e; }
-        [data-level='3'] { border-color: #bdc3c7; background-color: #ffffff; } [data-level='3'] > .block-title { font-size: 1.1em; }
-        [data-level='4'] { border-color: #ecf0f1; background-color: #fafafa; } [data-level='4'] > .block-title { font-size: 1em; }
-        
-        /* Layout toggle button */
-        .layout-toggle { position: absolute; top: 8px; right: 8px; cursor: pointer; padding: 4px; border-radius: 4px; background-color: rgba(0,0,0,0.05); line-height: 0; z-index: 5; }
-        .layout-toggle:hover { background-color: rgba(0,0,0,0.1); }
-    </style>
+    <!-- 基础样式 -->
+    <link rel="stylesheet" href="themes/base.css">
+    <!-- 主题样式 - 动态加载 -->
+    <link id="theme-css" rel="stylesheet" href="themes/default.css">
 </head>
 <body>
     <header class="main-header">
         <h1>交互式架构图生成器</h1>
+        <div class="theme-selector">
+            <label for="theme-select">主题:</label>
+            <select id="theme-select">
+                <option value="default">默认</option>
+                <option value="dark">深色</option>
+            </select>
+        </div>
     </header>
     <main class="main-container">
         <div class="panel panel-controls">
@@ -497,7 +312,32 @@ line 3
         }
 
         function getDiagramCSS() {
-            return `
+            // 根据当前主题返回相应的CSS
+            if (currentTheme === 'dark') {
+                return `
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #1a1a1a; color: #e0e0e0; }
+        .block { border: 1px solid; border-radius: 8px; background-color: #2d2d2d; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); margin: 8px; }
+        .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+        .block-title { font-weight: 600; margin: 0 0 8px 0; color: #ffffff; }
+        .block-items-container { display: flex; flex-direction: column; gap: 8px; }
+        .block-items-container p { margin: 0; }
+        .markdown-content > *:first-child { margin-top: 0; } .markdown-content > *:last-child { margin-bottom: 0; }
+        .text-content { white-space: pre; font-family: monospace; background-color: #1e1e1e; color: #e0e0e0; padding: 8px; border-radius: 4px; margin: 0;}
+        .block-container { min-height: 20px; }
+        .layout-vertical { display: flex; flex-direction: column; }
+        .layout-horizontal { display: flex; flex-direction: row; align-items: stretch; }
+        .layout-horizontal > .block { flex: 1; }
+        .block-content-wrapper { display: flex; align-items: stretch; gap: 16px; }
+        .block-main-content { flex: 1; min-width: 0; }
+        .block-sidebar { flex: 0 0 240px; }
+        [data-level='1'] { border-color: #666666; } [data-level='1'] > .block-title { font-size: 1.4em; color: #ffffff; }
+        [data-level='2'] { border-color: #555555; } [data-level='2'] > .block-title { font-size: 1.2em; color: #e0e0e0; }
+        [data-level='3'] { border-color: #444444; } [data-level='3'] > .block-title { font-size: 1.1em; color: #cccccc; }
+        [data-level='4'] { border-color: #333333; }
+                `.trim().replace(/\n\s+/g, '\n');
+            } else {
+                // 默认主题
+                return `
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; background-color: #f4f7f9; }
         .block { border: 1px solid; border-radius: 8px; background-color: #fff; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin: 8px; }
         .structure-only-block { border: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
@@ -517,7 +357,8 @@ line 3
         [data-level='2'] { border-color: #95a5a6; } [data-level='2'] > .block-title { font-size: 1.2em; }
         [data-level='3'] { border-color: #bdc3c7; } [data-level='3'] > .block-title { font-size: 1.1em; }
         [data-level='4'] { border-color: #ecf0f1; }
-            `.trim().replace(/\n\s+/g, '\n');
+                `.trim().replace(/\n\s+/g, '\n');
+            }
         }
 
         function updateCodePreview() {
@@ -553,6 +394,26 @@ line 3
 
         generateBtn.addEventListener('click', generateAndRender);
         exportBtn.addEventListener('click', exportHTML);
+
+        // 主题切换功能
+        let currentTheme = 'default';
+        const themeSelect = document.getElementById('theme-select');
+        const themeCss = document.getElementById('theme-css');
+
+        function switchTheme(theme) {
+            currentTheme = theme;
+            themeCss.href = `themes/${theme}.css`;
+            localStorage.setItem('selectedTheme', theme);
+        }
+
+        themeSelect.addEventListener('change', (e) => {
+            switchTheme(e.target.value);
+        });
+
+        // 加载保存的主题
+        const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+        themeSelect.value = savedTheme;
+        switchTheme(savedTheme);
 
         // 初始加载
         generateAndRender();
