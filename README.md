@@ -28,7 +28,7 @@ Check out the interactive builder in action!
 
 **(A GIF should be here, showcasing the tool's core features: typing text on the left, the diagram rendering in real-time, dragging a block to a new position, toggling a container's layout from vertical to horizontal, and the code preview instantly updating.)**
 
-*Image: A GIF demonstrating Structura's core functionalities.*
+![Example 1](./imgs/example1.png)
 
 ### ✨ Core Features
 
@@ -98,7 +98,7 @@ This project is licensed under the GNU GPLv3 License. See the [LICENSE](LICENSE)
 
 **(此处应有一个 GIF 动图，展示工具的核心功能：左侧输入文本，右侧实时渲染图表，用户拖动一个模块到新位置，一个容器的布局从垂直切换为水平，下方的代码预览随之立即更新。)**
 
-*图片：一个演示 Structura 核心功能的 GIF 动图。*
+![Example 1](./imgs/example1.png)
 
 ### ✨ 核心功能
 
