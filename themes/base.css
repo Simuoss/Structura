@@ -44,6 +44,34 @@ body {
     color: var(--title-color);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.github-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 18px;
+}
+
+.github-link:hover {
+    background: var(--bg-color);
+    border-color: var(--button-bg);
+    color: var(--button-bg);
+    transform: translateY(-1px);
+}
+
 .theme-selector {
     display: flex;
     align-items: center;

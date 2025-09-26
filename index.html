@@ -10,6 +10,8 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <!-- 引入 Marked.js 用于解析Markdown -->
     <script src="https://cdn.bootcdn.net/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <!-- 引入 Remix Icon 图标库 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/remixicon/4.2.0/remixicon.min.css">
     <!-- 基础样式 -->
     <link rel="stylesheet" href="themes/base.css">
     <!-- 主题样式 - 动态加载 -->
@@ -21,11 +23,16 @@
             <img src="/favicon.svg" alt="Structura Logo" class="logo" style="height: 1.5em; vertical-align: middle; margin-right: 8px;">
             Structura · 交互式架构图生成器
         </h1>
-        <div class="theme-selector">
-            <label for="theme-select">主题:</label>
-            <select id="theme-select">
-                <!-- 主题选项将通过JavaScript动态生成 -->
-            </select>
+        <div class="header-actions">
+            <a href="https://github.com/Simuoss/Structura" target="_blank" class="github-link" title="查看GitHub仓库">
+                <i class="ri-github-fill"></i>
+            </a>
+            <div class="theme-selector">
+                <label for="theme-select">主题:</label>
+                <select id="theme-select">
+                    <!-- 主题选项将通过JavaScript动态生成 -->
+                </select>
+            </div>
         </div>
     </header>
     <main class="main-container">
