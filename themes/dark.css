@@ -2,7 +2,8 @@
 
 /* --- 生成的图表样式 --- */
 #diagram-output { 
-    padding: var(--spacing); 
+    padding: var(--spacing);
+    transition: background var(--transition-duration) var(--transition-timing);
 }
 
 .block {
@@ -11,7 +12,7 @@
     background-color: #2c3e50;
     padding: 12px;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all var(--transition-duration) var(--transition-timing);
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     cursor: grab;
     margin: 8px;
@@ -192,6 +193,66 @@
 [data-level='4'] > .block-title { 
     font-size: 1em; 
     color: #a0aec0;
+}
+
+[data-level='5'] { 
+    border-color: #3a4a5c; 
+    background-color: #171923; 
+} 
+
+[data-level='5'] > .block-title { 
+    font-size: 0.95em; 
+    color: #9ca3af;
+}
+
+[data-level='6'] { 
+    border-color: #2d3748; 
+    background-color: #141821; 
+} 
+
+[data-level='6'] > .block-title { 
+    font-size: 0.9em; 
+    color: #8b949e;
+}
+
+[data-level='7'] { 
+    border-color: #252f3f; 
+    background-color: #111827; 
+} 
+
+[data-level='7'] > .block-title { 
+    font-size: 0.85em; 
+    color: #7c8591;
+}
+
+[data-level='8'] { 
+    border-color: #1f2937; 
+    background-color: #0f172a; 
+} 
+
+[data-level='8'] > .block-title { 
+    font-size: 0.8em; 
+    color: #6b7280;
+}
+
+[data-level='9'] { 
+    border-color: #1a202c; 
+    background-color: #0c1420; 
+} 
+
+[data-level='9'] > .block-title { 
+    font-size: 0.75em; 
+    color: #5a6169;
+}
+
+[data-level='10'] { 
+    border-color: #161b22; 
+    background-color: #0a0e13; 
+} 
+
+[data-level='10'] > .block-title { 
+    font-size: 0.7em; 
+    color: #4a5568;
 }
 
 /* Layout toggle button */

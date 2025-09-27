@@ -49,28 +49,32 @@ class MainManager {
      */
     async loadDefaultTemplate() {
         try {
-            const response = await fetch('./template/full.js');
-            const templateContent = await response.text();
-            // 提取模板内容（去掉可能的export语句等）
-            const match = templateContent.match(/`([^`]+)`/);
-            if (match) {
-                this.inputTextArea.value = match[1];
+            // 使用index.json获取模板文件列表
+            const indexResponse = await fetch('../templates/index.json');
+            if (!indexResponse.ok) {
+                throw new Error('无法加载templates/index.json');
+            }
+            
+            const templateData = await indexResponse.json();
+            // 获取第一个模板文件（通常是full.js）
+            const templateFile = Array.isArray(templateData.files) ? templateData.files[0] : templateData.files;
+            
+            // 动态导入模板模块
+            const templateModule = await import(`../templates/${templateFile}`);
+            
+            // 直接使用导出的模板变量
+            const content = templateModule.fullTemplate || templateModule.defaultTemplate || templateModule.templates?.full;
+            
+            if (content && this.inputTextArea) {
+                this.inputTextArea.value = content;
+                this.saveInputContent(content);
             } else {
-                // 如果模板格式不对，使用备用默认内容
-                this.inputTextArea.value = `# 前端层{layout=r}
-## 用户界面
-- 登录页面
-- 主页面
-- 设置页面
-
-## 组件库
-- 按钮组件
-- 表单组件
-- 图表组件`;
+                throw new Error('模板文件中未找到有效的模板内容');
             }
         } catch (error) {
-            console.warn('无法加载默认模板，使用内置默认内容:', error);
-            this.inputTextArea.value = `# 前端层{layout=r}
+            console.error('加载默认模板失败:', error);
+            // 使用备用模板
+            const fallbackTemplate = `# 前端层 r:
 ## 用户界面
 - 登录页面
 - 主页面
@@ -80,6 +84,10 @@ class MainManager {
 - 按钮组件
 - 表单组件
 - 图表组件`;
+            if (this.inputTextArea) {
+                this.inputTextArea.value = fallbackTemplate;
+                this.saveInputContent(fallbackTemplate);
+            }
         }
     }
     
@@ -361,18 +369,17 @@ class MainManager {
      */
     async scanThemes() {
         try {
-            // 尝试获取themes文件夹的文件列表
-            const response = await fetch('themes/');
-            const text = await response.text();
+            // 使用index.json获取主题文件列表
+            const response = await fetch('themes/index.json');
+            if (!response.ok) {
+                throw new Error('无法加载themes/index.json');
+            }
             
-            // 解析HTML响应，提取.css文件（排除base.css）
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const links = doc.querySelectorAll('a[href$=".css"]');
-            
+            const themeData = await response.json();
             this.availableThemes = [];
-            links.forEach(link => {
-                const filename = link.getAttribute('href');
+            
+            // 从JSON文件中获取主题列表（排除base.css）
+            themeData.files.forEach(filename => {
                 if (filename && filename !== 'base.css') {
                     const themeName = filename.replace('.css', '');
                     this.availableThemes.push({
@@ -382,18 +389,9 @@ class MainManager {
                 }
             });
             
-            // 如果无法通过目录列表获取，使用默认主题列表
-            if (this.availableThemes.length === 0) {
-                this.availableThemes = [
-                    { name: 'default', displayName: '默认' },
-                    { name: 'dark', displayName: '深色' },
-                    { name: 'candy', displayName: '糖果' }
-                ];
-            }
-            
             this.updateThemeSelector();
         } catch (error) {
-            console.log('无法动态扫描主题，使用默认主题列表');
+            console.log('无法从index.json加载主题，使用默认主题列表');
             // 使用默认主题列表
             this.availableThemes = [
                 { name: 'default', displayName: '默认' },

@@ -1,0 +1,10 @@
+﻿{
+    "description":  "涓婚鏍峰紡鏂囦欢",
+    "files":  [
+                  "base.css",
+                  "candy.css",
+                  "dark.css",
+                  "default.css"
+              ],
+    "type":  "css"
+}

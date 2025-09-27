@@ -13,6 +13,10 @@
     --code-color: #f2f2f2;
     --spacing: 16px;
     --radius: 8px;
+    
+    /* 添加过渡效果变量 */
+    --transition-duration: 0.3s;
+    --transition-timing: ease;
 }
 
 body {
@@ -24,6 +28,10 @@ body {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    
+    /* 为主题切换添加过渡效果 */
+    transition: background-color var(--transition-duration) var(--transition-timing),
+                color var(--transition-duration) var(--transition-timing);
 }
 
 /* --- 主布局 --- */
